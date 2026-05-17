@@ -1,33 +1,20 @@
-# Stage 1: PHP dependencies
-FROM composer:2 AS vendor
-
-WORKDIR /app
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
-
-# Stage 2: Build frontend (PHP + Node — requis par le plugin wayfinder qui appelle php artisan)
-FROM php:8.3-cli-alpine AS builder
-
-RUN apk add --no-cache nodejs npm
+# Stage 1: Build frontend assets
+FROM node:22-alpine AS frontend
 
 WORKDIR /app
 
-# PHP vendor from stage 1
-COPY --from=vendor /app/vendor vendor/
+COPY package*.json ./
+RUN npm ci
 
-# Application source
-COPY . .
+COPY resources/ resources/
+COPY public/ public/
+COPY vite.config.ts tsconfig.json ./
 
-# Fournir un .env minimal pour que php artisan puisse booter (requis par wayfinder)
-RUN cp .env.example .env && php artisan key:generate --force
+RUN npm run build
 
-# npm build (wayfinder appelle php artisan pour regénérer les types de routes)
-RUN npm ci && npm run build
-
-# Stage 3: PHP runtime
+# Stage 2: PHP runtime
 FROM php:8.3-fpm-alpine AS app
 
-# Install system dependencies + PHP extensions
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -48,14 +35,16 @@ RUN apk add --no-cache \
         opcache \
         intl
 
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 WORKDIR /var/www/html
 
-# Copy vendor + built app from previous stages
-COPY --from=vendor /app/vendor vendor/
-COPY --from=builder /app/public/build public/build
-COPY . .
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
-# Docker config
+COPY . .
+COPY --from=frontend /app/public/build public/build
+
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
