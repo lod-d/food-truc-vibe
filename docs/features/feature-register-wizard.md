@@ -31,9 +31,10 @@ Step 1 — Mon truck        Step 2 — Emplacement       Step 3 — Horaires
 
 | Field | Required | Notes |
 |-------|----------|-------|
-| Name | ✅ | max 255 |
+| Name | ✅ | max 255 — duplicate check via `GET /api/trucks/check-name`, debounce 400ms, warning if found |
 | Cuisine | ✅ | chips (single select), maps to `cuisine_id` UUID |
 | Description | — | textarea, max 1000 chars |
+| Email | — | nullable email — receives confirmation mail after registration |
 | Photo | — | image upload, max 2MB, stored in `storage/app/public/trucks/` |
 | Phone | — | max 30 chars |
 | Instagram | — | handle without `@`, stored as-is |
@@ -132,8 +133,8 @@ Vue: Home.vue
 
 ## Future Improvements (see backlog)
 
+- [x] Email confirmation to truck owner after registration
+- [x] Duplicate truck name detection
 - [ ] Allow multiple location slots per truck
 - [ ] Allow multiple time slots per day (morning + evening)
-- [ ] Email confirmation to truck owner after registration
 - [ ] Edit/delete truck (requires authentication)
-- [ ] Duplicate truck name detection

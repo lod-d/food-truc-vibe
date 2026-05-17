@@ -13,7 +13,7 @@ defineProps<{
                 <div
                     class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium border transition-colors duration-150"
                     :class="index + 1 < current
-                        ? 'bg-open-50 text-open-600 border-open-300'
+                        ? 'bg-open-50 text-open-600 border-open-600'
                         : index + 1 === current
                             ? 'bg-coral-400 text-white border-coral-400'
                             : 'bg-white text-warm-500 border-warm-200'"
@@ -32,7 +32,7 @@ defineProps<{
             <div
                 v-if="index < steps.length - 1"
                 class="flex-1 h-0.5 mx-1 mb-4 transition-colors duration-150"
-                :class="index + 1 < current ? 'bg-open-300' : 'bg-warm-200'"
+                :class="index + 1 < current ? 'bg-open-50 border border-open-600' : 'bg-warm-200'"
             />
         </template>
     </div>

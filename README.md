@@ -238,8 +238,7 @@ Schedule   → belongsTo  → Location
 |-------|-----|-------|
 | `coral-400` | `#D85A30` | Primary CTAs, open markers, accents |
 | `coral-600` | `#993C1D` | Hover state |
-| `coral-50` | `#FAECE7` | Cuisine badge background, active surfaces |
-| `coral-100` | `#F5C4B3` | Light hover surfaces |
+| `coral-50` | `#FAECE7` | Cuisine badge background, active surfaces, file input hover |
 | `warm-50` | `#F1EFE8` | Page background |
 | `warm-200` | `#D3D1C7` | Borders, separators |
 | `warm-500` | `#888780` | Secondary text, closed markers |
@@ -278,8 +277,8 @@ Card             : bg-white border border-warm-200 rounded-lg p-4
 | Breakpoint | Width | Behavior |
 |-----------|-------|---------|
 | mobile (default) | < 768px | Full-screen map, truck list in bottom sheet |
-| `md:` | ≥ 768px | Side-by-side map + panel (288px) |
-| `lg:` | ≥ 1024px | Wider panel (320px), filters always visible |
+| `md:` | ≥ 768px | Map (flex-1) + panel droite (288px) + barre chips cuisine |
+| `lg:` | ≥ 1024px | Panel droite élargi (320px) |
 
 ### Leaflet Marker Styles
 
@@ -1159,31 +1158,9 @@ Fields shown: photo, name, open/closed badge, cuisine badge, today's hours, addr
 
 #### `SearchBar.vue`
 
-```vue
-<!-- Cuisine chips + open-now toggle -->
-<template>
-    <div class="flex flex-col gap-3">
-        <!-- Toggle -->
-        <label class="flex items-center gap-2 cursor-pointer">
-            <div class="relative w-9 h-5 rounded-full transition-colors duration-150"
-                 :class="openNow ? 'bg-open-600' : 'bg-warm-200'"
-                 @click="emit('update:openNow', !openNow)">
-                <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-150"
-                     :class="openNow ? 'translate-x-4' : ''" />
-            </div>
-            <span class="text-sm text-warm-900">Ouvert maintenant</span>
-        </label>
-        <!-- Cuisine chips -->
-        <div class="flex flex-wrap gap-1.5">
-            <button class="..." @click="emit('update:selectedCuisine', null)">Tous</button>
-            <button v-for="c in cuisines" :key="c.id" class="..."
-                    @click="emit('update:selectedCuisine', selectedCuisine === c.slug ? null : c.slug)">
-                {{ c.emoji }} {{ c.name }}
-            </button>
-        </div>
-    </div>
-</template>
-```
+Chips cuisine uniquement (horizontal, `flex-wrap`). Props : `cuisines`, `selectedCuisine`. Emit : `update:selectedCuisine`.
+
+Le toggle "Ouverts aujourd'hui" est géré directement dans `Home.vue` (overlay carte desktop, section dédiée mobile).
 
 ---
 
@@ -1216,27 +1193,28 @@ Fields: truck name*, cuisine chips*, description textarea, photo file upload, ph
 
 #### `AppLayout.vue`
 
-Fixed 56px navbar with logo link (`/`) and "Mon truck" CTA (`/enregistrer`).
+Navbar fixe 56px : logo (`/`), chips emoji cuisine (desktop, via `usePage` — visuelles), CTA "+ Mon truck" (`/enregistrer`).
 
 #### `Home.vue` — Map Page
 
 ```
 Desktop layout:
-┌──────────┬──────────────────────────────────┐
-│  Panel   │                                  │
-│  (288px) │          Leaflet Map             │
-│ Filters  │                                  │
-│ Truck    │                                  │
-│ List     │                                  │
-└──────────┴──────────────────────────────────┘
+┌──────────────────────────────────┬──────────┐
+│                                  │  Panel   │
+│          Leaflet Map             │  (288px) │
+│  [toggle overlay BL]             │  Compteur│
+│  [géoloc overlay BR]             │  Truck   │
+│                                  │  List    │
+└──────────────────────────────────┴──────────┘
+│        Barre chips cuisine                  │
+└─────────────────────────────────────────────┘
 
 Mobile layout:
 ┌─────────────────────────────────────────────┐
 │                Leaflet Map                  │
 │                (full screen)                │
 ├─────────────────────────────────────────────┤
-│    Bottom Sheet (45vh, scrollable)          │
-│    Filters + Truck List                     │
+│  Bottom Sheet (45vh) — toggle + chips + list│
 └─────────────────────────────────────────────┘
 ```
 
@@ -1271,7 +1249,6 @@ Uses `useForm` from Inertia (single form state across 3 steps). Submits as `mult
 
     /* Coral */
     --color-coral-50:  #FAECE7;
-    --color-coral-100: #F5C4B3;
     --color-coral-400: #D85A30;
     --color-coral-600: #993C1D;
 
@@ -1283,7 +1260,6 @@ Uses `useForm` from Inertia (single form state across 3 steps). Submits as `mult
 
     /* Semantic */
     --color-open-50:  #EAF3DE;
-    --color-open-300: #A8CC78;
     --color-open-600: #639922;
 
     /* Radius */
@@ -1411,9 +1387,13 @@ php artisan route:list
 
 ### Storage (photo uploads)
 
+Run once on each environment (local and production) to create the `public/storage` symlink that exposes uploaded photos at `/storage/trucks/<filename>`:
+
 ```bash
 php artisan storage:link
 ```
+
+Without this, truck photos will be stored but return a broken URL. Must be re-run after any deployment that wipes the `public/` folder.
 
 ---
 

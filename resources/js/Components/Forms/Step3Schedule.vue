@@ -13,6 +13,7 @@ const DAYS = [
 
 const toggleDay = (form: any, day: number) => {
     const idx = form.days.indexOf(day)
+
     if (idx === -1) {
         form.days.push(day)
     } else {

@@ -33,6 +33,13 @@ class AppServiceProvider extends ServiceProvider
                 ->get(),
             'flash' => fn() => [
                 'success' => session('success'),
+                'error'   => session('error'),
+            ],
+            'auth' => fn() => [
+                'user' => auth()->check() ? [
+                    'id'   => auth()->id(),
+                    'name' => auth()->user()->name,
+                ] : null,
             ],
         ]);
     }

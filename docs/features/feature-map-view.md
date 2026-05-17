@@ -24,27 +24,35 @@
 - Clicking a marker selects the truck and highlights it in the side panel
 - `flyTo(lat, lng, zoom=14)` animates the map when clicking a truck card
 
-### Side Panel (desktop ≥ 768px)
+### Layout (desktop ≥ 768px)
 
-- Fixed-width: 288px (`md:`) / 320px (`lg:`)
-- Top section: `SearchBar` (cuisine chips + open-now toggle)
-- Bottom section: scrollable truck list (`AppCard` per truck)
-- Selected truck card highlighted with `border-coral-400 ring-1 ring-coral-400`
+- **Carte** : `flex-1`, occupe toute la hauteur disponible (`h-[calc(100vh-56px)]`)
+- **Panel droite** : 288px (`md:`) / 320px (`lg:`), `border-l`
+  - Header : compteur "X trucks trouvés" + input recherche par nom (debounce 300ms) + date picker (reset "Aujourd'hui" si non-today)
+  - Corps : liste scrollable de `AppCard` par truck, 20/page, bouton "Charger plus" si `hasMore`
+  - Card sélectionnée : `border-coral-400 ring-1 ring-coral-400`
+- **Navbar** : chips cuisine emoji (visuelles, `AppLayout.vue`) entre le logo et le CTA
+- **Barre chips cuisine** (sous le bloc carte+panel) : `SearchBar` horizontal, desktop uniquement
+- **Toggle "Ouverts aujourd'hui"** : overlay absolu `bottom-6 left-3` sur la carte
+- **Bouton "Me localiser"** : overlay absolu `bottom-6 right-14` sur la carte
 
 ### Bottom Sheet (mobile < 768px)
 
 - Fixed to bottom, 45vh height, scrollable
 - `rounded-t-2xl` top corners, drag handle visual hint
-- Contains same filters + truck list as desktop panel
+- Contient : date picker + toggle ouvert + recherche par nom + chips cuisine (`SearchBar`) + liste trucks
 
 ### Filters
 
-| Filter | Behavior |
+| Filter | Comportement |
 |--------|---------|
 | Cuisine chip | `GET /api/trucks?cuisine=<slug>` — mutually exclusive |
 | "Tous" chip | Clears cuisine filter |
-| Open now toggle | `GET /api/trucks?open_now=1` |
-| Filters combined | Both params sent simultaneously |
+| Toggle "Ouverts aujourd'hui" | `GET /api/trucks?open_now=1` — overlay carte (desktop) / bottom sheet (mobile) |
+| Recherche par nom | `GET /api/trucks?name=<query>` — LIKE search, debounce 300ms, panel header (desktop) + bottom sheet (mobile) |
+| Map bounds | `GET /api/trucks?min_lat=&max_lat=&min_lng=&max_lng=` — auto-triggered on `moveend` quand zoom ≥ 10 |
+| Date picker | `GET /api/trucks?date=YYYY-MM-DD` — panel desktop + bottom sheet mobile ; reset "Aujourd'hui" visible si date ≠ today |
+| Filters combined | All params sent simultaneously |
 
 Filter changes trigger `useTrucks` to re-fetch via `watch(filters, fetch, { deep: true })`.
 
@@ -112,7 +120,8 @@ Vue: Home.vue
 | `resources/js/Composables/useMap.js` | Leaflet init, markers, clusters |
 | `resources/js/Composables/useTrucks.js` | API fetch + reactive filters |
 | `resources/js/Components/Map/MapView.vue` | Leaflet wrapper |
-| `resources/js/Components/Map/SearchBar.vue` | Cuisine chips + toggle |
+| `resources/js/Components/Map/SearchBar.vue` | Cuisine chips (toggle extrait vers Home.vue) |
+| `resources/js/Layouts/AppLayout.vue` | Navbar + chips emoji cuisine |
 | `resources/js/Components/Map/TruckPopup.vue` | Marker popup content |
 
 ---
@@ -120,6 +129,8 @@ Vue: Home.vue
 ## Future Improvements (see backlog)
 
 - [x] Geolocation button ("locate me")
-- [ ] Filter by map bounds (only fetch visible trucks)
-- [ ] Date picker to view future schedules
-- [ ] Pagination for the truck list panel
+- [x] Filter by map bounds (only fetch visible trucks)
+- [x] Truck search by name
+- [x] Responsive desktop popup (Leaflet popup via `createApp`)
+- [x] Date picker to view future schedules
+- [x] Pagination for the truck list panel

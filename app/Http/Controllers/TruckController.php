@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTruckRequest;
+use App\Mail\TruckRegisteredMail;
 use App\Models\FoodTruck;
 use App\Models\Location;
 use App\Models\Schedule;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -32,6 +35,10 @@ class TruckController extends Controller
                     );
                 }
                 $q->with(['schedules' => fn($s) => $s->openToday($date)]);
+                if ($request->filled('min_lat') && $request->filled('max_lat')) {
+                    $q->whereBetween('latitude',  [(float) $request->min_lat, (float) $request->max_lat])
+                      ->whereBetween('longitude', [(float) $request->min_lng, (float) $request->max_lng]);
+                }
             },
         ])
         ->when($request->filled('cuisine'), fn($q) =>
@@ -40,10 +47,17 @@ class TruckController extends Controller
         ->when($request->boolean('open_now'), fn($q) =>
             $q->whereHas('locations.schedules', fn($s) => $s->openNow())
         )
-        ->get()
-        ->map(fn($truck) => $this->formatTruck($truck, $date));
+        ->when($request->filled('name'), fn($q) =>
+            $q->where('name', 'LIKE', '%' . $request->name . '%')
+        )
+        ->paginate(20);
 
-        return response()->json(['data' => $trucks]);
+        return response()->json([
+            'data'         => $trucks->map(fn($truck) => $this->formatTruck($truck, $date)),
+            'current_page' => $trucks->currentPage(),
+            'last_page'    => $trucks->lastPage(),
+            'total'        => $trucks->total(),
+        ]);
     }
 
     public function show(string $id): JsonResponse
@@ -52,6 +66,19 @@ class TruckController extends Controller
             ->findOrFail($id);
 
         return response()->json(['data' => $this->formatTruck($truck, now())]);
+    }
+
+    public function checkName(Request $request): JsonResponse
+    {
+        $name = $request->string('name')->trim();
+
+        if ($name->isEmpty()) {
+            return response()->json(['exists' => false]);
+        }
+
+        $exists = FoodTruck::whereRaw('LOWER(name) = ?', [strtolower($name)])->exists();
+
+        return response()->json(['exists' => $exists]);
     }
 
     public function create(): Response
@@ -69,9 +96,11 @@ class TruckController extends Controller
         }
 
         $truck = FoodTruck::create([
+            'user_id'       => auth()->id(),
             'cuisine_id'    => $data['cuisine_id'],
             'name'          => $data['name'],
             'description'   => $data['description'] ?? null,
+            'email'         => $data['email'] ?? null,
             'phone'         => $data['phone'] ?? null,
             'instagram_url' => $data['instagram_url'] ?? null,
             'photo_url'     => $photoUrl ? asset('storage/' . $photoUrl) : null,
@@ -96,10 +125,14 @@ class TruckController extends Controller
             ]);
         }
 
+        if ($truck->email) {
+            Mail::to($truck->email)->send(new TruckRegisteredMail($truck));
+        }
+
         return redirect()->route('home')->with('success', "Votre truck \"{$truck->name}\" a bien été enregistré !");
     }
 
-    private function formatTruck(FoodTruck $truck, Carbon $date): array
+    private function formatTruck(FoodTruck $truck, CarbonInterface $date): array
     {
         return [
             'id'            => $truck->id,

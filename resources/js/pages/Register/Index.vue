@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useForm, usePage } from '@inertiajs/vue3'
-import AppLayout from '../../Layouts/AppLayout.vue'
-import AppButton from '../../Components/ui/AppButton.vue'
-import StepIndicator from '../../Components/Forms/StepIndicator.vue'
+import { ref } from 'vue'
 import Step1Info from '../../Components/Forms/Step1Info.vue'
 import Step2Location from '../../Components/Forms/Step2Location.vue'
 import Step3Schedule from '../../Components/Forms/Step3Schedule.vue'
+import StepIndicator from '../../Components/Forms/StepIndicator.vue'
+import AppButton from '../../Components/ui/AppButton.vue'
+import AppLayout from '../../Layouts/AppLayout.vue'
 
 const page = usePage<{ cuisines: any[] }>()
 
@@ -18,6 +18,7 @@ const form = useForm({
     name:          '',
     cuisine_id:    '',
     description:   '',
+    email:         '',
     phone:         '',
     instagram_url: '',
     photo:         null as File | null,
@@ -39,18 +40,36 @@ const step2Valid = () => form.address && form.latitude !== null && form.longitud
 const step3Valid = () => form.days.length > 0 && form.opens_at && form.closes_at
 
 const next = () => {
-    if (currentStep.value === 1 && !step1Valid()) return
-    if (currentStep.value === 2 && !step2Valid()) return
+    if (currentStep.value === 1 && !step1Valid()) {
+return
+}
+
+    if (currentStep.value === 2 && !step2Valid()) {
+return
+}
+
     currentStep.value++
 }
 
 const prev = () => {
-    if (currentStep.value > 1) currentStep.value--
+    if (currentStep.value > 1) {
+currentStep.value--
 }
+}
+
+const step1Fields = ['name', 'cuisine_id', 'description', 'email', 'phone', 'instagram_url', 'photo']
+const step2Fields = ['address', 'city', 'latitude', 'longitude', 'place_name']
 
 const submit = () => {
     form.post('/trucks', {
         forceFormData: true,
+        onError: (errors) => {
+            if (step1Fields.some(f => f in errors)) {
+                currentStep.value = 1
+            } else if (step2Fields.some(f => f in errors)) {
+                currentStep.value = 2
+            }
+        },
     })
 }
 </script>

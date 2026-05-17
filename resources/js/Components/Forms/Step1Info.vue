@@ -1,8 +1,31 @@
 <script setup lang="ts">
-defineProps<{
+import { ref, watch } from 'vue'
+
+const props = defineProps<{
     form: any
     cuisines: Array<{ id: string; name: string; emoji: string; slug: string }>
 }>()
+
+const duplicateWarning = ref(false)
+let nameCheckTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(() => props.form.name, (val) => {
+    duplicateWarning.value = false
+
+    if (nameCheckTimer) {
+clearTimeout(nameCheckTimer)
+}
+
+    if (!val || val.trim().length < 3) {
+return
+}
+
+    nameCheckTimer = setTimeout(async () => {
+        const res = await fetch(`/api/trucks/check-name?name=${encodeURIComponent(val.trim())}`)
+        const json = await res.json()
+        duplicateWarning.value = json.exists
+    }, 400)
+})
 </script>
 
 <template>
@@ -15,8 +38,12 @@ defineProps<{
                 type="text"
                 placeholder="Ex: Burger Bros"
                 class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
+                :class="duplicateWarning ? 'border-amber-400 focus:ring-amber-400' : ''"
             />
             <p v-if="form.errors.name" class="text-xs text-red-500 mt-1">{{ form.errors.name }}</p>
+            <p v-else-if="duplicateWarning" class="text-xs text-amber-600 mt-1">
+                Un truck avec ce nom existe déjà. Vérifiez avant de continuer.
+            </p>
         </div>
 
         <!-- Type de cuisine -->
@@ -50,13 +77,25 @@ defineProps<{
             />
         </div>
 
+        <!-- Email -->
+        <div>
+            <label class="block text-xs text-warm-500 mb-1">Email (pour recevoir une confirmation)</label>
+            <input
+                v-model="form.email"
+                type="email"
+                placeholder="contact@montruck.fr"
+                class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
+            />
+            <p v-if="form.errors.email" class="text-xs text-red-500 mt-1">{{ form.errors.email }}</p>
+        </div>
+
         <!-- Photo -->
         <div>
             <label class="block text-xs text-warm-500 mb-1">Photo (optionnel)</label>
             <input
                 type="file"
                 accept="image/*"
-                class="w-full text-sm text-warm-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:bg-coral-50 file:text-coral-600 hover:file:bg-coral-100"
+                class="w-full text-sm text-warm-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:bg-coral-50 file:text-coral-600 hover:file:bg-coral-50"
                 @change="(e) => form.photo = (e.target as HTMLInputElement).files?.[0] ?? null"
             />
         </div>

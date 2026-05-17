@@ -7,18 +7,24 @@
 
 ## 🔴 High Priority
 
-- [ ] **Photo upload — storage:link** : run `php artisan storage:link` in prod setup docs
-- [ ] **Truck admin panel** : allow truck owners to edit/delete their truck (requires basic auth)
-- [ ] **Duplicate prevention** : detect similar truck names on registration to avoid duplicates
-- [x] **Map geolocation** : "Locate me" button to center the map on the user's current position
-- [ ] **Pagination / infinite scroll** : the truck list panel needs pagination for large datasets
+*(vide — tous les items critiques sont livrés)*
 
 ## 🟡 Medium Priority
 
 - [ ] **Multiple locations per truck** : a truck can appear at several spots on the same day
 - [ ] **Multiple schedule slots** : support morning + afternoon slots (e.g. 11h–14h and 18h–21h)
-- [ ] **Truck search by name** : text search input in the panel (in addition to cuisine filter)
-- [ ] **Date picker on map** : view trucks scheduled for a future date
-- [ ] **Email notification on registration** : confirm to the truck owner that their truck is live
-- [ ] **Responsive popup** : `TruckPopup.vue` on desktop should use a Leaflet popup, not just the side panel
-- [ ] **Map bounds filter** : only fetch trucks visible in the current map viewport
+
+---
+
+## ✅ Done (moved to sprint docs)
+
+- [x] **Map geolocation** : "Locate me" button — Sprint 2
+- [x] **Truck search by name** : text search input in the panel — Sprint 3
+- [x] **Responsive popup** : desktop Leaflet popup via `createApp(TruckPopup)` — Sprint 3
+- [x] **Map bounds filter** : only fetch trucks visible in the current map viewport — Sprint 3
+- [x] **Truck admin panel** : auth Laravel native + CRUD edit/delete — Sprint 6
+- [x] **Photo upload — storage:link** : documented in README with prod context — Sprint 5
+- [x] **Date picker on map** : filter trucks by future date, toggle disabled when non-today — Sprint 5
+- [x] **Pagination** : "Charger plus" in truck list panel, 20/page — Sprint 4
+- [x] **Email notification on registration** : Mailable + blade template, sent if email provided — Sprint 4
+- [x] **Duplicate prevention** : name check via `GET /api/trucks/check-name`, warning in Step 1 — Sprint 4

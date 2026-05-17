@@ -15,6 +15,7 @@ class FoodTruck extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'user_id',
         'cuisine_id',
         'name',
         'description',
@@ -23,6 +24,11 @@ class FoodTruck extends Model
         'instagram_url',
         'photo_url',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function cuisine(): BelongsTo
     {

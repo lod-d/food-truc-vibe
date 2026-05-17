@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
 import L from 'leaflet'
+import { onMounted, ref } from 'vue'
 import { useGeocoding } from '../../Composables/useGeocoding'
 
 const props = defineProps<{ form: any }>()
@@ -17,8 +17,14 @@ const { search } = useGeocoding()
 const placeMarker = (lat: number, lng: number, address?: string, city?: string) => {
     props.form.latitude  = lat
     props.form.longitude = lng
-    if (address) props.form.address = address
-    if (city)    props.form.city    = city
+
+    if (address) {
+props.form.address = address
+}
+
+    if (city)    {
+props.form.city    = city
+}
 
     const latlng = L.latLng(lat, lng)
 

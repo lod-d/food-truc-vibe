@@ -12,7 +12,6 @@
 
     /* Couleurs coral */
     --color-coral-50:  #FAECE7;
-    --color-coral-100: #F5C4B3;
     --color-coral-400: #D85A30;
     --color-coral-600: #993C1D;
 
@@ -24,7 +23,6 @@
 
     /* Sémantiques */
     --color-open-50:  #EAF3DE;
-    --color-open-300: #A8CC78;
     --color-open-600: #639922;
 
     /* Border radius */
@@ -106,4 +104,8 @@
 .leaflet-popup-content {
     margin: 0 !important;
     width: 220px !important;
+}
+
+.truck-leaflet-popup .leaflet-popup-content {
+    width: 260px !important;
 }
