@@ -18,7 +18,10 @@ COPY --from=vendor /app/vendor vendor/
 # Application source
 COPY . .
 
-# npm build (wayfinder peut maintenant appeler php artisan)
+# Fournir un .env minimal pour que php artisan puisse booter (requis par wayfinder)
+RUN cp .env.example .env && php artisan key:generate --force
+
+# npm build (wayfinder appelle php artisan pour regénérer les types de routes)
 RUN npm ci && npm run build
 
 # Stage 3: PHP runtime
