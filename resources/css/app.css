@@ -1,0 +1,109 @@
+@import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
+@import 'leaflet.markercluster/dist/MarkerCluster.css';
+@import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    /* Typographie */
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    /* Couleurs coral */
+    --color-coral-50:  #FAECE7;
+    --color-coral-100: #F5C4B3;
+    --color-coral-400: #D85A30;
+    --color-coral-600: #993C1D;
+
+    /* Neutres warm-gray */
+    --color-warm-50:  #F1EFE8;
+    --color-warm-200: #D3D1C7;
+    --color-warm-500: #888780;
+    --color-warm-900: #2C2C2A;
+
+    /* Sémantiques */
+    --color-open-50:  #EAF3DE;
+    --color-open-300: #A8CC78;
+    --color-open-600: #639922;
+
+    /* Border radius */
+    --radius-sm:   6px;
+    --radius-md:   8px;
+    --radius-lg:   12px;
+    --radius-pill: 9999px;
+}
+
+/* ─── Leaflet markers ─────────────────────────────────────── */
+.truck-marker {
+    width: 40px;
+    height: 40px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: #D85A30;
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+}
+
+.truck-marker.closed {
+    background: #888780;
+    opacity: .65;
+}
+
+.truck-marker .emoji {
+    transform: rotate(45deg);
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* ─── Leaflet clusters ────────────────────────────────────── */
+.truck-cluster {
+    width: 40px;
+    height: 40px;
+    background: #D85A30;
+    border: 3px solid rgba(216, 90, 48, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ─── User location marker ────────────────────────────────── */
+.user-location-marker {
+    width: 20px;
+    height: 20px;
+    background: #3B82F6;
+    border: 3px solid white;
+    border-radius: 50%;
+    animation: user-pulse 2s infinite;
+}
+
+@keyframes user-pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+    70%  { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+/* ─── Leaflet popups ──────────────────────────────────────── */
+.leaflet-popup-content-wrapper {
+    border-radius: 12px !important;
+    border: 0.5px solid #D3D1C7 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.leaflet-popup-tip {
+    background: white !important;
+}
+
+.leaflet-popup-content {
+    margin: 0 !important;
+    width: 220px !important;
+}
