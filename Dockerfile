@@ -1,21 +1,30 @@
-# Stage 1: Build frontend assets
-FROM node:22-alpine AS frontend
+# Stage 1: PHP dependencies
+FROM composer:2 AS vendor
+
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+
+# Stage 2: Build frontend (PHP + Node — requis par le plugin wayfinder qui appelle php artisan)
+FROM php:8.3-cli-alpine AS builder
+
+RUN apk add --no-cache nodejs npm
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+# PHP vendor from stage 1
+COPY --from=vendor /app/vendor vendor/
 
-COPY resources/ resources/
-COPY public/ public/
-COPY vite.config.ts tsconfig.json ./
+# Application source
+COPY . .
 
-RUN npm run build
+# npm build (wayfinder peut maintenant appeler php artisan)
+RUN npm ci && npm run build
 
-# Stage 2: PHP runtime
+# Stage 3: PHP runtime
 FROM php:8.3-fpm-alpine AS app
 
-# Install system dependencies
+# Install system dependencies + PHP extensions
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -36,22 +45,14 @@ RUN apk add --no-cache \
         opcache \
         intl
 
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
 WORKDIR /var/www/html
 
-# Copy composer files and install dependencies (no dev)
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
-
-# Copy application source
+# Copy vendor + built app from previous stages
+COPY --from=vendor /app/vendor vendor/
+COPY --from=builder /app/public/build public/build
 COPY . .
 
-# Copy built frontend assets
-COPY --from=frontend /app/public/build public/build
-
-# Copy Docker config files
+# Docker config
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
