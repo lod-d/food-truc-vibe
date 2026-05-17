@@ -35,8 +35,7 @@ class TruckAdminController extends Controller
 
     public function edit(FoodTruck $truck): Response
     {
-        // Unclaimed trucks are editable by anyone; claimed trucks only by owner
-        abort_if($truck->user_id !== null && $truck->user_id !== Auth::id(), 403);
+        abort_if($truck->user_id !== Auth::id(), 403);
 
         $truck->load(['cuisine', 'locations.schedules']);
         $location  = $truck->locations->first();
@@ -67,7 +66,7 @@ class TruckAdminController extends Controller
 
     public function update(UpdateTruckRequest $request, FoodTruck $truck): RedirectResponse
     {
-        abort_if($truck->user_id !== null && $truck->user_id !== Auth::id(), 403);
+        abort_if($truck->user_id !== Auth::id(), 403);
 
         $data = $request->validated();
 

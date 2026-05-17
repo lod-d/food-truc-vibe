@@ -3,12 +3,13 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreTruckRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return Auth::check();
     }
 
     public function rules(): array
@@ -21,7 +22,7 @@ class StoreTruckRequest extends FormRequest
             'email'         => ['nullable', 'email', 'max:255'],
             'phone'         => ['nullable', 'string', 'max:30'],
             'instagram_url' => ['nullable', 'string', 'max:255'],
-            'photo'         => ['nullable', 'image', 'max:2048'],
+            'photo'         => ['nullable', 'file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
 
             // Step 2
             'address'       => ['required', 'string', 'max:255'],

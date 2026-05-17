@@ -3,12 +3,14 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateTruckRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $truck = $this->route('truck');
+        return $truck && $truck->user_id === Auth::id();
     }
 
     public function rules(): array
@@ -20,7 +22,7 @@ class UpdateTruckRequest extends FormRequest
             'email'         => ['nullable', 'email', 'max:255'],
             'phone'         => ['nullable', 'string', 'max:30'],
             'instagram_url' => ['nullable', 'string', 'max:255'],
-            'photo'         => ['nullable', 'image', 'max:2048'],
+            'photo'         => ['nullable', 'file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
             'address'       => ['required', 'string', 'max:255'],
             'city'          => ['required', 'string', 'max:100'],
             'latitude'      => ['required', 'numeric', 'between:-90,90'],

@@ -20,6 +20,17 @@ class TruckController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $request->validate([
+            'lat'     => ['nullable', 'numeric', 'between:-90,90'],
+            'lng'     => ['nullable', 'numeric', 'between:-180,180'],
+            'min_lat' => ['nullable', 'numeric', 'between:-90,90'],
+            'max_lat' => ['nullable', 'numeric', 'between:-90,90'],
+            'min_lng' => ['nullable', 'numeric', 'between:-180,180'],
+            'max_lng' => ['nullable', 'numeric', 'between:-180,180'],
+            'radius'  => ['nullable', 'integer', 'min:1', 'max:500'],
+            'page'    => ['nullable', 'integer', 'min:1', 'max:5000'],
+        ]);
+
         $date = $request->date ? Carbon::parse($request->date) : now();
 
         $trucks = FoodTruck::with([
@@ -48,7 +59,7 @@ class TruckController extends Controller
             $q->whereHas('locations.schedules', fn($s) => $s->openNow())
         )
         ->when($request->filled('name'), fn($q) =>
-            $q->where('name', 'LIKE', '%' . $request->name . '%')
+            $q->where('name', 'LIKE', '%' . addcslashes((string) $request->input('name'), '%_') . '%')
         )
         ->paginate(20);
 
