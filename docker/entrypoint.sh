@@ -3,19 +3,18 @@ set -e
 
 cd /var/www/html
 
-# Ensure storage directories exist with correct permissions
+# Storage permissions
 mkdir -p storage/app/public storage/framework/{cache,sessions,views} storage/logs
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-# Wait for MySQL to be ready
+# Wait for MySQL with mysqladmin ping
 echo "Waiting for database..."
-until php artisan db:monitor --max=1 2>/dev/null; do
+until mysqladmin ping -h"${DB_HOST:-mysql}" -u"${DB_USERNAME:-root}" -p"${DB_PASSWORD}" --silent 2>/dev/null; do
     sleep 2
 done
 echo "Database ready."
 
-# Run Laravel setup
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
