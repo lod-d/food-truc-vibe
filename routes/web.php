@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Auth
-Route::middleware(['guest', 'throttle:5,1'])->group(function () {
+Route::middleware('guest')->group(function () {
     Route::get('/connexion', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/connexion', [AuthController::class, 'login']);
+    Route::post('/connexion', [AuthController::class, 'login'])->middleware('throttle:10,1');
     Route::get('/inscription', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/inscription', [AuthController::class, 'register']);
+    Route::post('/inscription', [AuthController::class, 'register'])->middleware('throttle:10,1');
 });
 Route::post('/deconnexion', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
