@@ -8,9 +8,9 @@ mkdir -p storage/app/public storage/framework/{cache,sessions,views} storage/log
 chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-# Wait for MySQL with mysqladmin ping
+# Wait for MySQL with PHP PDO
 echo "Waiting for database..."
-until mysqladmin ping -h"${DB_HOST:-mysql}" -u"${DB_USERNAME:-root}" -p"${DB_PASSWORD}" --silent 2>/dev/null; do
+until php -r "new PDO('mysql:host=${DB_HOST};port=${DB_PORT:-3306};dbname=${DB_DATABASE}', '${DB_USERNAME}', '${DB_PASSWORD}');" 2>/dev/null; do
     sleep 2
 done
 echo "Database ready."
