@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/* eslint-disable vue/no-mutating-props -- Inertia useForm est conçu pour être muté depuis les composants enfants */
 import L from 'leaflet'
 import { onMounted, ref } from 'vue'
 import { useGeocoding } from '../../Composables/useGeocoding'
@@ -76,6 +77,12 @@ const onSearchInput = () => {
     }, 350)
 }
 
+const onSearchBlur = () => {
+    setTimeout(() => {
+ showSuggestions.value = false 
+}, 200)
+}
+
 const selectSuggestion = (s: any) => {
     const addressParts = s.display_name.split(',')
     const address  = addressParts[0]?.trim() ?? s.display_name
@@ -99,7 +106,7 @@ const selectSuggestion = (s: any) => {
                 placeholder="Rechercher une adresse..."
                 class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
                 @input="onSearchInput"
-                @blur="setTimeout(() => showSuggestions = false, 200)"
+                @blur="onSearchBlur"
             />
             <ul
                 v-if="showSuggestions"

@@ -1,19 +1,24 @@
 import L from 'leaflet'
-import { createApp, h, onUnmounted } from 'vue'
+import {  createApp, h, onUnmounted } from 'vue'
+import type {Ref} from 'vue';
 import 'leaflet.markercluster'
 import TruckPopup from '../Components/Map/TruckPopup.vue'
+import type { Bounds } from './useTrucks'
 
-export function useMap(containerRef) {
-    let map = null
-    let clusterGroup = null
-    let onTruckClickCallback = null
-    let onBoundsChangeCallback = null
-    let userMarker = null
-    let userAccuracyCircle = null
+type BoundsCallback = (bounds: Bounds | null) => void
+type TruckClickCallback = (truck: any, location: any) => void
+
+export function useMap(containerRef: Ref<HTMLElement | null>) {
+    let map: L.Map | null = null
+    let clusterGroup: L.MarkerClusterGroup | null = null
+    let onTruckClickCallback: TruckClickCallback | null = null
+    let onBoundsChangeCallback: BoundsCallback | null = null
+    let userMarker: L.Marker | null = null
+    let userAccuracyCircle: L.Circle | null = null
     let skipMoveEndUntil = 0
-    const popupApps = []
+    const popupApps: ReturnType<typeof createApp>[] = []
 
-    const mountPopup = (truck, location) => {
+    const mountPopup = (truck: any, location: any): HTMLDivElement => {
         const el = document.createElement('div')
         const app = createApp({ render: () => h(TruckPopup, { truck, location }) })
         app.mount(el)
@@ -22,13 +27,17 @@ export function useMap(containerRef) {
         return el
     }
 
-    const unmountPopups = () => {
+    const unmountPopups = (): void => {
         popupApps.forEach(app => app.unmount())
         popupApps.length = 0
     }
 
-    const init = (onBoundsChange = null) => {
+    const init = (onBoundsChange: BoundsCallback | null = null): void => {
         onBoundsChangeCallback = onBoundsChange
+
+        if (!containerRef.value) {
+return
+}
 
         map = L.map(containerRef.value, {
             center: [46.603354, 1.888334],
@@ -56,12 +65,17 @@ export function useMap(containerRef) {
         map.addLayer(clusterGroup)
 
         map.on('moveend', () => {
-            if (!onBoundsChangeCallback) return
-            // Skip bounds update during/after programmatic flyTo (window lasts 1.5s to cover animation + any extra events)
-            if (Date.now() < skipMoveEndUntil) return
+            if (!onBoundsChangeCallback || !map) {
+return
+}
+
+            if (Date.now() < skipMoveEndUntil) {
+return
+}
 
             if (map.getZoom() < 10) {
                 onBoundsChangeCallback(null)
+
                 return
             }
 
@@ -75,7 +89,7 @@ export function useMap(containerRef) {
         })
     }
 
-    const setTrucks = (trucks, onClickFn) => {
+    const setTrucks = (trucks: any[], onClickFn: TruckClickCallback): void => {
         if (!clusterGroup) {
 return
 }
@@ -85,8 +99,8 @@ return
         unmountPopups()
         clusterGroup.clearLayers()
 
-        const markers = trucks.flatMap((truck) =>
-            truck.locations.map((loc) => {
+        const markers: L.Marker[] = trucks.flatMap((truck) =>
+            truck.locations.map((loc: any) => {
                 const icon = L.divIcon({
                     html: `<div class="truck-marker ${loc.is_open_now ? '' : 'closed'}"><span class="emoji">${truck.cuisine.emoji}</span></div>`,
                     className: '',
@@ -96,7 +110,7 @@ return
                 })
 
                 const marker = L.marker([loc.latitude, loc.longitude], { icon })
-                marker.bindPopup(mountPopup(truck, loc), { maxWidth: 260, className: 'truck-leaflet-popup', autopan: false })
+                marker.bindPopup(mountPopup(truck, loc), { maxWidth: 260, className: 'truck-leaflet-popup', autoPan: false })
                 marker.on('click', () => onTruckClickCallback?.(truck, loc))
 
                 return marker
@@ -106,14 +120,19 @@ return
         clusterGroup.addLayers(markers)
     }
 
-    const flyTo = (lat, lng, zoom = 14) => {
-        if (!map || lat == null || lng == null) return
+    const flyTo = (lat: number | null, lng: number | null, zoom = 14): void => {
+        if (!map || lat == null || lng == null) {
+return
+}
+
         skipMoveEndUntil = Date.now() + 1500
         map.flyTo([lat, lng], zoom, { animate: true, duration: 0.6 })
     }
 
-    const showUserLocation = (lat, lng, accuracy = null) => {
-        if (!map) return
+    const showUserLocation = (lat: number, lng: number, accuracy: number | null = null): void => {
+        if (!map) {
+return
+}
 
         const icon = L.divIcon({
             html: '<div class="user-location-marker"></div>',
@@ -143,18 +162,19 @@ return
         }
     }
 
-    const removeUserLocation = () => {
+    const removeUserLocation = (): void => {
         if (userMarker) {
             map?.removeLayer(userMarker)
             userMarker = null
         }
+
         if (userAccuracyCircle) {
             map?.removeLayer(userAccuracyCircle)
             userAccuracyCircle = null
         }
     }
 
-    const getMap = () => map
+    const getMap = (): L.Map | null => map
 
     onUnmounted(() => {
         unmountPopups()

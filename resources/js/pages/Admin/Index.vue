@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
+import { ref } from 'vue'
 import AppBadge from '../../Components/ui/AppBadge.vue'
 import AppButton from '../../Components/ui/AppButton.vue'
 import AppCard from '../../Components/ui/AppCard.vue'
@@ -25,12 +25,18 @@ const page = usePage<{ auth: { user: { name: string } }; flash: { success?: stri
 const showUnclaimed = ref(false)
 
 const deleteTruck = (id: string, name: string) => {
-    if (!confirm(`Supprimer "${name}" ? Cette action est irréversible.`)) return
+    if (!confirm(`Supprimer "${name}" ? Cette action est irréversible.`)) {
+return
+}
+
     router.delete(`/mon-truck/${id}`)
 }
 
 const claimTruck = (id: string, name: string) => {
-    if (!confirm(`Revendiquer "${name}" ? Vous serez le seul gestionnaire de ce truck.`)) return
+    if (!confirm(`Revendiquer "${name}" ? Vous serez le seul gestionnaire de ce truck.`)) {
+return
+}
+
     router.post(`/mon-truck/${id}/revendiquer`)
 }
 </script>

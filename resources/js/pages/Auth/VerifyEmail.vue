@@ -2,7 +2,7 @@
 import { useForm, usePage } from '@inertiajs/vue3'
 import AppLayout from '../../Layouts/AppLayout.vue'
 
-const page = usePage()
+const page = usePage<{ flash?: { success?: string } }>()
 const form = useForm({})
 
 const resend = () => form.post('/email/verification-notification')

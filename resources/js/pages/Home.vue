@@ -83,8 +83,13 @@ const formatTime = (t: string) => t.slice(0, 5)
 const searchQuery = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 watch(searchQuery, (val) => {
-    if (searchTimer) clearTimeout(searchTimer)
-    searchTimer = setTimeout(() => { filters.value.name = val || null }, 300)
+    if (searchTimer) {
+clearTimeout(searchTimer)
+}
+
+    searchTimer = setTimeout(() => {
+ filters.value.name = val || null 
+}, 300)
 })
 
 // City search
@@ -95,8 +100,16 @@ const selectedCityName = ref<string | null>(null)
 let cityTimer: ReturnType<typeof setTimeout> | null = null
 
 watch(cityQuery, (val) => {
-    if (cityTimer) clearTimeout(cityTimer)
-    if (!val || val.length < 3) { cityResults.value = []; showCityDropdown.value = false; return }
+    if (cityTimer) {
+clearTimeout(cityTimer)
+}
+
+    if (!val || val.length < 3) {
+ cityResults.value = []; showCityDropdown.value = false;
+
+ return 
+}
+
     cityTimer = setTimeout(async () => {
         cityResults.value = await geocodeSearch(val)
         showCityDropdown.value = cityResults.value.length > 0
@@ -124,7 +137,10 @@ const clearCityFilter = () => {
 }
 
 const onBoundsChanged = (bounds: any) => {
-    if (filters.value.lat) return
+    if (filters.value.lat) {
+return
+}
+
     filters.value.bounds = bounds
 }
 
@@ -136,14 +152,20 @@ const userCoords = ref<{ lat: number; lng: number; accuracy: number } | null>(nu
 let errorTimer: ReturnType<typeof setTimeout> | null = null
 
 const setLocateError = (msg: string) => {
-    if (errorTimer) clearTimeout(errorTimer)
+    if (errorTimer) {
+clearTimeout(errorTimer)
+}
+
     locateError.value = msg
-    errorTimer = setTimeout(() => { locateError.value = null }, 5000)
+    errorTimer = setTimeout(() => {
+ locateError.value = null 
+}, 5000)
 }
 
 const onLocateMe = () => {
     if (!navigator.geolocation) {
         setLocateError('Géolocalisation non supportée par votre navigateur')
+
         return
     }
 
@@ -175,7 +197,10 @@ const onLocateMe = () => {
 }
 
 const onRecenter = () => {
-    if (!userCoords.value) return
+    if (!userCoords.value) {
+return
+}
+
     mapViewRef.value?.flyTo(userCoords.value.lat, userCoords.value.lng, 13)
 }
 
@@ -192,10 +217,23 @@ const showFilterModal = ref(false)
 
 const activeFiltersCount = computed(() => {
     let n = 0
-    if (filters.value.cuisine) n++
-    if (filters.value.openNow) n++
-    if (!isToday.value) n++
-    if (selectedCityName.value) n++
+
+    if (filters.value.cuisine) {
+n++
+}
+
+    if (filters.value.openNow) {
+n++
+}
+
+    if (!isToday.value) {
+n++
+}
+
+    if (selectedCityName.value) {
+n++
+}
+
     return n
 })
 </script>
@@ -262,17 +300,49 @@ const activeFiltersCount = computed(() => {
             <!-- Panel gauche (desktop) -->
             <div class="hidden md:flex flex-col w-80 lg:w-96 border-r border-warm-200 bg-white overflow-hidden shrink-0">
 
+                <!-- État vide : aucune localisation choisie -->
+                <div v-if="!hasLocation" class="flex-1 flex flex-col items-center justify-center px-6 py-8 text-center gap-4">
+                    <div class="w-16 h-16 rounded-full bg-coral-50 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-coral-400">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-warm-900 mb-1">Où cherchez-vous ?</p>
+                        <p class="text-xs text-warm-500">Utilisez la carte ci-contre pour choisir une ville ou activer votre localisation.</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-coral-400 mt-2">
+                        <span>Commencez sur la carte</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- État localisé : badge + filtres + liste -->
+                <template v-else>
+
                 <!-- Filters header -->
                 <div class="px-4 pt-4 pb-3 border-b border-warm-200 shrink-0 space-y-3">
+
+                    <!-- Badge zone active -->
+                    <div class="flex items-center gap-2 rounded-md border border-coral-400 bg-coral-50 px-3 py-2.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-coral-400 shrink-0">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <span class="flex-1 text-sm text-warm-900 truncate">{{ selectedCityName || (located ? 'Ma position' : 'Zone sélectionnée') }}</span>
+                        <button
+                            class="text-warm-400 hover:text-warm-900 text-sm leading-none w-6 h-6 flex items-center justify-center"
+                            aria-label="Changer de zone"
+                            @click="located ? onForgetLocation() : clearCityFilter()"
+                        >✕</button>
+                    </div>
 
                     <!-- Count + reset -->
                     <div class="flex items-center justify-between">
                         <p class="text-xs text-warm-500">
-                            <template v-if="hasLocation">
-                                <span class="text-sm font-medium text-warm-900">{{ trucks.length }}</span>
-                                {{ trucks.length > 1 ? ' trucks trouvés' : ' truck trouvé' }}
-                            </template>
-                            <span v-else class="text-warm-400">Aucune zone sélectionnée</span>
+                            <span class="text-sm font-medium text-warm-900">{{ trucks.length }}</span>
+                            {{ trucks.length > 1 ? ' trucks trouvés' : ' truck trouvé' }}
                         </p>
                         <button
                             v-if="isCustomDate"
@@ -289,35 +359,6 @@ const activeFiltersCount = computed(() => {
                         class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
                     />
 
-                    <!-- City search -->
-                    <div class="relative">
-                        <div v-if="selectedCityName" class="flex items-center gap-2 rounded-md border border-coral-400 bg-coral-50 px-3 py-3">
-                            <span class="flex-1 text-sm text-warm-900 truncate">📍 {{ selectedCityName }}</span>
-                            <button class="text-warm-400 hover:text-warm-900 text-sm leading-none w-6 h-6 flex items-center justify-center" @click="clearCityFilter">✕</button>
-                        </div>
-                        <input
-                            v-else
-                            v-model="cityQuery"
-                            type="text"
-                            placeholder="Ville ou code postal…"
-                            class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
-                        />
-                        <div
-                            v-if="showCityDropdown"
-                            class="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-warm-200 rounded-lg shadow-lg overflow-hidden"
-                        >
-                            <button
-                                v-for="r in cityResults"
-                                :key="r.place_id"
-                                class="w-full text-left px-3 py-2 text-xs text-warm-900 hover:bg-warm-50 border-b border-warm-100 last:border-0"
-                                @click="onCitySelect(r)"
-                            >
-                                {{ r.address?.city || r.address?.town || r.address?.village || r.address?.county }}
-                                <span class="text-warm-400 ml-1">{{ r.address?.state }}</span>
-                            </button>
-                        </div>
-                    </div>
-
                     <!-- Radius (affiché seulement si une ville est sélectionnée) -->
                     <div v-if="selectedCityName" class="flex rounded-lg border border-warm-200 overflow-hidden text-xs">
                         <button
@@ -325,7 +366,7 @@ const activeFiltersCount = computed(() => {
                             :key="km"
                             class="flex-1 px-2 py-3 border-r border-warm-200 last:border-0 transition-colors"
                             :class="filters.radius === km ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
-                            @click="filters.radius = km; mapViewRef.value?.flyTo(filters.lat, filters.lng, zoomForRadius[km] ?? 11)"
+                            @click="filters.radius = km; mapViewRef?.flyTo(filters.lat, filters.lng, zoomForRadius[km] ?? 11)"
                         >{{ km }} km</button>
                     </div>
 
@@ -452,6 +493,8 @@ const activeFiltersCount = computed(() => {
                         {{ loadingMore ? 'Chargement…' : 'Charger plus' }}
                     </button>
                 </div>
+
+                </template>
             </div>
 
             <!-- Carte -->
@@ -713,7 +756,7 @@ const activeFiltersCount = computed(() => {
                             :key="km"
                             class="flex-1 px-2 py-3 border-r border-warm-200 last:border-0 transition-colors"
                             :class="filters.radius === km ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
-                            @click="filters.radius = km; mapViewRef.value?.flyTo(filters.lat, filters.lng, zoomForRadius[km] ?? 11)"
+                            @click="filters.radius = km; mapViewRef?.flyTo(filters.lat, filters.lng, zoomForRadius[km] ?? 11)"
                         >{{ km }} km</button>
                     </div>
                 </div>

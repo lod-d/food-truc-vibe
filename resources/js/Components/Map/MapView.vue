@@ -23,7 +23,13 @@ watch(() => props.trucks, (newTrucks) => {
     setTrucks(newTrucks, (truck: any, loc: any) => emit('truck-selected', truck, loc))
 })
 
-defineExpose({ flyTo, showUserLocation, removeUserLocation })
+export interface MapViewExpose {
+    flyTo: (lat: number | null, lng: number | null, zoom?: number) => void
+    showUserLocation: (lat: number, lng: number, accuracy?: number | null) => void
+    removeUserLocation: () => void
+}
+
+defineExpose<MapViewExpose>({ flyTo, showUserLocation, removeUserLocation })
 </script>
 
 <template>
