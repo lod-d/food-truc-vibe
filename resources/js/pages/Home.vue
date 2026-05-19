@@ -210,6 +210,28 @@ const activeFiltersCount = computed(() => {
             {{ page.props.flash.success }}
         </div>
 
+        <!-- Pill recherche mobile — fixed pour échapper aux stacking contexts -->
+        <button
+            v-if="!showFilterModal"
+            class="md:hidden fixed top-16 left-3 right-3 z-50 flex items-center gap-3 bg-white rounded-full pl-4 pr-2 py-2.5 shadow-lg border border-warm-200 hover:bg-warm-50 transition-colors"
+            @click="showFilterModal = true"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warm-500 shrink-0">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+            </svg>
+            <span class="flex-1 text-left text-sm truncate" :class="searchQuery || selectedCityName ? 'text-warm-900' : 'text-warm-500'">
+                {{ searchQuery || selectedCityName || 'Rechercher un truck, une ville…' }}
+            </span>
+            <span v-if="activeFiltersCount > 0" class="shrink-0 inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-coral-400 text-white text-xs font-medium">
+                {{ activeFiltersCount }}
+            </span>
+            <span v-else class="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-warm-50 text-warm-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="14" y2="12" /><line x1="4" y1="18" x2="10" y2="18" />
+                </svg>
+            </span>
+        </button>
+
         <!-- Layout desktop : panel gauche | carte -->
         <div class="flex h-[calc(100vh-56px)]">
 
@@ -441,27 +463,6 @@ const activeFiltersCount = computed(() => {
                         </button>
                     </div>
                 </div>
-
-                <!-- Pill recherche mobile — déclenche la modale filtres -->
-                <button
-                    class="md:hidden absolute top-3 left-3 right-3 z-1000 flex items-center gap-3 bg-white rounded-full pl-4 pr-2 py-2.5 shadow-md border border-warm-200 hover:bg-warm-50 transition-colors"
-                    @click="showFilterModal = true"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warm-500 shrink-0">
-                        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-                    </svg>
-                    <span class="flex-1 text-left text-sm truncate" :class="searchQuery || selectedCityName ? 'text-warm-900' : 'text-warm-500'">
-                        {{ searchQuery || selectedCityName || 'Rechercher un truck, une ville…' }}
-                    </span>
-                    <span v-if="activeFiltersCount > 0" class="shrink-0 inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-coral-400 text-white text-xs font-medium">
-                        {{ activeFiltersCount }}
-                    </span>
-                    <span v-else class="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-warm-50 text-warm-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="14" y2="12" /><line x1="4" y1="18" x2="10" y2="18" />
-                        </svg>
-                    </span>
-                </button>
 
                 <!-- Bouton géolocalisation — overlay top-left (mobile: sous la pill) -->
                 <button
