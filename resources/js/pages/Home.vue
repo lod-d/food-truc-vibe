@@ -186,6 +186,18 @@ const onForgetLocation = () => {
     filters.value.lng = null
     mapViewRef.value?.removeUserLocation()
 }
+
+// Mobile filter modal
+const showFilterModal = ref(false)
+
+const activeFiltersCount = computed(() => {
+    let n = 0
+    if (filters.value.cuisine) n++
+    if (filters.value.openNow) n++
+    if (!isToday.value) n++
+    if (selectedCityName.value) n++
+    return n
+})
 </script>
 
 <template>
@@ -413,7 +425,10 @@ const onForgetLocation = () => {
                 >
                     <div class="bg-white rounded-2xl shadow-xl border border-warm-200 px-7 py-6 text-center pointer-events-auto max-w-xs">
                         <p class="text-sm font-medium text-warm-900 mb-1">Où cherchez-vous ?</p>
-                        <p class="text-xs text-warm-500 mb-4">Entrez une ville dans le panneau<br>ou activez la localisation</p>
+                        <p class="text-xs text-warm-500 mb-4">
+                            <span class="hidden md:inline">Entrez une ville dans le panneau<br>ou activez la localisation</span>
+                            <span class="md:hidden">Utilisez la barre de recherche en haut<br>ou activez la localisation</span>
+                        </p>
                         <button
                             class="inline-flex items-center gap-1.5 bg-coral-400 hover:bg-coral-600 text-white text-sm rounded-full px-5 py-3 transition-colors disabled:opacity-50"
                             :disabled="locating"
@@ -427,10 +442,31 @@ const onForgetLocation = () => {
                     </div>
                 </div>
 
-                <!-- Bouton géolocalisation — overlay top-left -->
+                <!-- Pill recherche mobile — déclenche la modale filtres -->
+                <button
+                    class="md:hidden absolute top-3 left-3 right-3 z-1000 flex items-center gap-3 bg-white rounded-full pl-4 pr-2 py-2.5 shadow-md border border-warm-200 hover:bg-warm-50 transition-colors"
+                    @click="showFilterModal = true"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warm-500 shrink-0">
+                        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+                    </svg>
+                    <span class="flex-1 text-left text-sm truncate" :class="searchQuery || selectedCityName ? 'text-warm-900' : 'text-warm-500'">
+                        {{ searchQuery || selectedCityName || 'Rechercher un truck, une ville…' }}
+                    </span>
+                    <span v-if="activeFiltersCount > 0" class="shrink-0 inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-coral-400 text-white text-xs font-medium">
+                        {{ activeFiltersCount }}
+                    </span>
+                    <span v-else class="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-warm-50 text-warm-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="14" y2="12" /><line x1="4" y1="18" x2="10" y2="18" />
+                        </svg>
+                    </span>
+                </button>
+
+                <!-- Bouton géolocalisation — overlay top-left (mobile: sous la pill) -->
                 <button
                     v-if="!located"
-                    class="absolute top-4 left-4 z-1000 flex items-center gap-1.5 bg-white rounded-full px-4 py-2.5 text-xs font-medium text-warm-900 shadow-md border border-warm-200 hover:bg-warm-50 disabled:opacity-50 transition-opacity"
+                    class="absolute top-20 left-3 md:top-4 md:left-4 z-1000 flex items-center gap-1.5 bg-white rounded-full px-4 py-2.5 text-xs font-medium text-warm-900 shadow-md border border-warm-200 hover:bg-warm-50 disabled:opacity-50 transition-opacity"
                     :disabled="locating"
                     @click="onLocateMe"
                 >
@@ -442,7 +478,7 @@ const onForgetLocation = () => {
                 </button>
 
                 <!-- Recentrer + oublier (quand localisé) -->
-                <div v-else class="absolute top-4 left-4 z-1000 flex items-center gap-2">
+                <div v-else class="absolute top-20 left-3 md:top-4 md:left-4 z-1000 flex items-center gap-2">
                     <button
                         class="flex items-center gap-1.5 bg-white rounded-full px-4 py-2.5 text-xs font-medium text-warm-900 shadow-md border border-warm-200 hover:bg-warm-50 transition-colors"
                         @click="onRecenter"
@@ -463,7 +499,7 @@ const onForgetLocation = () => {
                 <!-- Erreur géolocalisation -->
                 <div
                     v-if="locateError"
-                    class="absolute top-14 left-4 z-1000 bg-white text-xs text-red-600 border border-red-200 rounded-lg px-3 py-2 shadow whitespace-nowrap"
+                    class="absolute top-32 left-3 right-3 md:top-14 md:left-4 md:right-auto z-1000 bg-white text-xs text-red-600 border border-red-200 rounded-lg px-3 py-2 shadow"
                 >
                     {{ locateError }}
                 </div>
@@ -482,8 +518,8 @@ const onForgetLocation = () => {
             </div>
         </div>
 
-        <!-- Bottom sheet mobile -->
-        <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white rounded-t-2xl border-t border-warm-200 shadow-lg" style="max-height: 60vh; overflow-y: auto;">
+        <!-- Bottom sheet mobile (liste uniquement, filtres dans la modale) -->
+        <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white rounded-t-2xl border-t border-warm-200 shadow-lg" style="max-height: 50vh; overflow-y: auto;">
 
             <!-- Handle + count -->
             <div class="flex flex-col items-center pt-2 pb-1 sticky top-0 bg-white border-b border-warm-200 z-10">
@@ -495,108 +531,6 @@ const onForgetLocation = () => {
                     </template>
                     <span v-else class="text-warm-400">Aucune zone sélectionnée</span>
                 </p>
-            </div>
-
-            <div class="px-4 py-3 space-y-3">
-                <!-- Search -->
-                <input
-                    v-model="searchQuery"
-                    type="text"
-                    placeholder="Rechercher un truck…"
-                    class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
-                />
-
-                <!-- City search -->
-                <div class="relative">
-                    <div v-if="selectedCityName" class="flex items-center gap-2 rounded-md border border-coral-400 bg-coral-50 px-3 py-3">
-                        <span class="flex-1 text-sm text-warm-900 truncate">📍 {{ selectedCityName }}</span>
-                        <button class="text-warm-400 hover:text-warm-900 text-sm leading-none w-6 h-6 flex items-center justify-center" @click="clearCityFilter">✕</button>
-                    </div>
-                    <input
-                        v-else
-                        v-model="cityQuery"
-                        type="text"
-                        placeholder="Ville ou code postal…"
-                        class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
-                    />
-                    <div
-                        v-if="showCityDropdown"
-                        class="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-warm-200 rounded-lg shadow-lg overflow-hidden"
-                    >
-                        <button
-                            v-for="r in cityResults"
-                            :key="r.place_id"
-                            class="w-full text-left px-3 py-3 text-sm text-warm-900 hover:bg-warm-50 border-b border-warm-100 last:border-0"
-                            @click="onCitySelect(r)"
-                        >
-                            {{ r.address?.city || r.address?.town || r.address?.village || r.address?.county }}
-                            <span class="text-warm-400 ml-1">{{ r.address?.state }}</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Radius (mobile) -->
-                <div v-if="selectedCityName" class="flex rounded-lg border border-warm-200 overflow-hidden text-xs">
-                    <button
-                        v-for="km in [10, 25, 50, 100]"
-                        :key="km"
-                        class="flex-1 px-2 py-3 border-r border-warm-200 last:border-0 transition-colors"
-                        :class="filters.radius === km ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
-                        @click="filters.radius = km; mapViewRef.value?.flyTo(filters.lat, filters.lng, zoomForRadius[km] ?? 11)"
-                    >{{ km }} km</button>
-                </div>
-
-                <!-- Date buttons -->
-                <div class="flex rounded-lg border border-warm-200 overflow-hidden text-xs">
-                    <button
-                        class="flex-1 px-2 py-3 border-r border-warm-200 transition-colors"
-                        :class="isToday ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
-                        @click="selectToday"
-                    >Aujourd'hui</button>
-                    <button
-                        class="flex-1 px-2 py-3 border-r border-warm-200 transition-colors"
-                        :class="isTomorrow ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
-                        @click="selectTomorrow"
-                    >Demain</button>
-                    <button
-                        class="flex-1 px-2 py-3 transition-colors"
-                        :class="isCustomDate ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
-                        @click="selectCustom"
-                    >Autre date</button>
-                </div>
-                <input
-                    v-if="showCustomDatePicker || isCustomDate"
-                    v-model="selectedDate"
-                    type="date"
-                    :min="today"
-                    class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 focus:outline-none focus:border-coral-400"
-                    @change="showCustomDatePicker = false"
-                />
-
-                <!-- Open now toggle -->
-                <label
-                    class="flex items-center gap-2.5"
-                    :class="isToday ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'"
-                >
-                    <div
-                        class="relative w-9 h-5 rounded-full transition-colors duration-150 shrink-0"
-                        :class="filters.openNow ? 'bg-open-600' : 'bg-warm-200'"
-                        @click="isToday && (filters.openNow = !filters.openNow)"
-                    >
-                        <div
-                            class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-150"
-                            :class="filters.openNow ? 'translate-x-4' : ''"
-                        />
-                    </div>
-                    <span class="text-sm text-warm-900">{{ isToday ? 'Ouverts maintenant' : 'Ouverts ce jour-là' }}</span>
-                </label>
-
-                <!-- Cuisine chips -->
-                <SearchBar
-                    :cuisines="page.props.cuisines"
-                    :selected-cuisine="filters.cuisine"
-                    @update:selected-cuisine="filters.cuisine = $event"
-                />
             </div>
 
             <!-- Truck list mobile -->
@@ -645,13 +579,170 @@ const onForgetLocation = () => {
                 </button>
                 <button
                     v-if="hasMore"
-                    class="w-full text-xs text-warm-500 hover:text-warm-900 py-3 transition-colors"
+                    class="w-full text-sm text-warm-500 hover:text-warm-900 py-4 transition-colors"
                     :disabled="loadingMore"
                     @click="loadMore"
                 >
                     {{ loadingMore ? 'Chargement…' : 'Charger plus' }}
                 </button>
             </div>
+        </div>
+
+        <!-- Modale recherche/filtres mobile -->
+        <div
+            v-if="showFilterModal"
+            class="md:hidden fixed inset-0 z-60 bg-white flex flex-col"
+        >
+            <!-- Header -->
+            <header class="flex items-center justify-between px-4 py-3 border-b border-warm-200 shrink-0">
+                <h2 class="text-base font-medium text-warm-900">Rechercher</h2>
+                <button
+                    class="w-10 h-10 flex items-center justify-center rounded-full text-warm-500 hover:bg-warm-50 hover:text-warm-900 transition-colors"
+                    aria-label="Fermer"
+                    @click="showFilterModal = false"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </header>
+
+            <!-- Filtres scrollables -->
+            <div class="flex-1 overflow-y-auto px-4 py-4 space-y-5">
+
+                <!-- Search by name -->
+                <div>
+                    <label class="block text-xs text-warm-500 mb-1.5">Nom du truck</label>
+                    <input
+                        v-model="searchQuery"
+                        type="text"
+                        placeholder="Rechercher un truck…"
+                        class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
+                    />
+                </div>
+
+                <!-- City search -->
+                <div>
+                    <label class="block text-xs text-warm-500 mb-1.5">Ville</label>
+                    <div class="relative">
+                        <div v-if="selectedCityName" class="flex items-center gap-2 rounded-md border border-coral-400 bg-coral-50 px-3 py-3">
+                            <span class="flex-1 text-sm text-warm-900 truncate">📍 {{ selectedCityName }}</span>
+                            <button class="text-warm-400 hover:text-warm-900 text-sm leading-none w-6 h-6 flex items-center justify-center" @click="clearCityFilter">✕</button>
+                        </div>
+                        <input
+                            v-else
+                            v-model="cityQuery"
+                            type="text"
+                            placeholder="Ville ou code postal…"
+                            class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
+                        />
+                        <div
+                            v-if="showCityDropdown"
+                            class="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-warm-200 rounded-lg shadow-lg overflow-hidden"
+                        >
+                            <button
+                                v-for="r in cityResults"
+                                :key="r.place_id"
+                                class="w-full text-left px-3 py-3 text-sm text-warm-900 hover:bg-warm-50 border-b border-warm-100 last:border-0"
+                                @click="onCitySelect(r)"
+                            >
+                                {{ r.address?.city || r.address?.town || r.address?.village || r.address?.county }}
+                                <span class="text-warm-400 ml-1">{{ r.address?.state }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Radius (si ville sélectionnée) -->
+                <div v-if="selectedCityName">
+                    <label class="block text-xs text-warm-500 mb-1.5">Rayon</label>
+                    <div class="flex rounded-lg border border-warm-200 overflow-hidden text-sm">
+                        <button
+                            v-for="km in [10, 25, 50, 100]"
+                            :key="km"
+                            class="flex-1 px-2 py-3 border-r border-warm-200 last:border-0 transition-colors"
+                            :class="filters.radius === km ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
+                            @click="filters.radius = km; mapViewRef.value?.flyTo(filters.lat, filters.lng, zoomForRadius[km] ?? 11)"
+                        >{{ km }} km</button>
+                    </div>
+                </div>
+
+                <!-- Date -->
+                <div>
+                    <label class="block text-xs text-warm-500 mb-1.5">Date</label>
+                    <div class="flex rounded-lg border border-warm-200 overflow-hidden text-sm">
+                        <button
+                            class="flex-1 px-2 py-3 border-r border-warm-200 transition-colors"
+                            :class="isToday ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
+                            @click="selectToday"
+                        >Aujourd'hui</button>
+                        <button
+                            class="flex-1 px-2 py-3 border-r border-warm-200 transition-colors"
+                            :class="isTomorrow ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
+                            @click="selectTomorrow"
+                        >Demain</button>
+                        <button
+                            class="flex-1 px-2 py-3 transition-colors"
+                            :class="isCustomDate ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
+                            @click="selectCustom"
+                        >Autre</button>
+                    </div>
+                    <input
+                        v-if="showCustomDatePicker || isCustomDate"
+                        v-model="selectedDate"
+                        type="date"
+                        :min="today"
+                        class="mt-2 w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 focus:outline-none focus:border-coral-400"
+                        @change="showCustomDatePicker = false"
+                    />
+                </div>
+
+                <!-- Open now toggle -->
+                <label
+                    class="flex items-center justify-between gap-3 py-2"
+                    :class="isToday ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'"
+                >
+                    <span class="text-sm text-warm-900">{{ isToday ? 'Ouverts maintenant' : 'Ouverts ce jour-là' }}</span>
+                    <div
+                        class="relative w-11 h-6 rounded-full transition-colors duration-150 shrink-0"
+                        :class="filters.openNow ? 'bg-open-600' : 'bg-warm-200'"
+                        @click="isToday && (filters.openNow = !filters.openNow)"
+                    >
+                        <div
+                            class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-150"
+                            :class="filters.openNow ? 'translate-x-5' : ''"
+                        />
+                    </div>
+                </label>
+
+                <!-- Cuisine chips -->
+                <div>
+                    <label class="block text-xs text-warm-500 mb-1.5">Type de cuisine</label>
+                    <SearchBar
+                        :cuisines="page.props.cuisines"
+                        :selected-cuisine="filters.cuisine"
+                        @update:selected-cuisine="filters.cuisine = $event"
+                    />
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="px-4 py-3 border-t border-warm-200 shrink-0 flex items-center gap-3">
+                <button
+                    v-if="activeFiltersCount > 0 || searchQuery"
+                    class="text-sm text-warm-500 hover:text-warm-900 py-3 px-2 transition-colors"
+                    @click="searchQuery = ''; filters.cuisine = null; filters.openNow = false; selectToday(); clearCityFilter()"
+                >
+                    Réinitialiser
+                </button>
+                <button
+                    class="flex-1 bg-coral-400 hover:bg-coral-600 text-white text-sm font-medium rounded-md py-3 transition-colors"
+                    @click="showFilterModal = false"
+                >
+                    Voir les résultats
+                    <span v-if="hasLocation" class="opacity-80">({{ trucks.length }})</span>
+                </button>
+            </footer>
         </div>
     </AppLayout>
 </template>
