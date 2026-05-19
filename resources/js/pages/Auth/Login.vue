@@ -25,7 +25,7 @@ const submit = () => form.post('/connexion')
                             v-model="form.email"
                             type="email"
                             autocomplete="email"
-                            class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
+                            class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
                         />
                         <p v-if="form.errors.email" class="text-xs text-red-500 mt-1">{{ form.errors.email }}</p>
                     </div>
@@ -36,13 +36,13 @@ const submit = () => form.post('/connexion')
                             v-model="form.password"
                             type="password"
                             autocomplete="current-password"
-                            class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
+                            class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
                         />
                         <p v-if="form.errors.password" class="text-xs text-red-500 mt-1">{{ form.errors.password }}</p>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <input id="remember" v-model="form.remember" type="checkbox" class="rounded border-warm-200" />
+                        <input id="remember" v-model="form.remember" type="checkbox" class="w-5 h-5 rounded border-warm-200" />
                         <label for="remember" class="text-xs text-warm-500">Se souvenir de moi</label>
                     </div>
 

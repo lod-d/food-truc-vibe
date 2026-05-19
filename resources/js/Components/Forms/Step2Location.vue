@@ -97,7 +97,7 @@ const selectSuggestion = (s: any) => {
                 v-model="searchQuery"
                 type="text"
                 placeholder="Rechercher une adresse..."
-                class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
+                class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
                 @input="onSearchInput"
                 @blur="setTimeout(() => showSuggestions = false, 200)"
             />
@@ -108,7 +108,7 @@ const selectSuggestion = (s: any) => {
                 <li
                     v-for="s in suggestions"
                     :key="s.place_id"
-                    class="px-3 py-2 text-sm text-warm-900 hover:bg-warm-50 cursor-pointer"
+                    class="px-3 py-3 text-sm text-warm-900 hover:bg-warm-50 cursor-pointer"
                     @mousedown.prevent="selectSuggestion(s)"
                 >
                     {{ s.display_name }}
@@ -129,11 +129,11 @@ const selectSuggestion = (s: any) => {
         <div class="flex gap-3" v-if="form.latitude && form.longitude">
             <div class="flex-1">
                 <label class="block text-xs text-warm-500 mb-1">Latitude</label>
-                <input :value="form.latitude?.toFixed(6)" readonly class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm bg-warm-50 text-warm-500" />
+                <input :value="form.latitude?.toFixed(6)" readonly class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm bg-warm-50 text-warm-500" />
             </div>
             <div class="flex-1">
                 <label class="block text-xs text-warm-500 mb-1">Longitude</label>
-                <input :value="form.longitude?.toFixed(6)" readonly class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm bg-warm-50 text-warm-500" />
+                <input :value="form.longitude?.toFixed(6)" readonly class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm bg-warm-50 text-warm-500" />
             </div>
         </div>
 
@@ -144,7 +144,7 @@ const selectSuggestion = (s: any) => {
                 v-model="form.place_name"
                 type="text"
                 placeholder="Ex: Marché des Enfants Rouges"
-                class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
+                class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
             />
         </div>
     </div>

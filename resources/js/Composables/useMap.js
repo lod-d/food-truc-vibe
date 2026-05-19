@@ -9,6 +9,7 @@ export function useMap(containerRef) {
     let onTruckClickCallback = null
     let onBoundsChangeCallback = null
     let userMarker = null
+    let userAccuracyCircle = null
     let skipMoveEndUntil = 0
     const popupApps = []
 
@@ -89,9 +90,9 @@ return
                 const icon = L.divIcon({
                     html: `<div class="truck-marker ${loc.is_open_now ? '' : 'closed'}"><span class="emoji">${truck.cuisine.emoji}</span></div>`,
                     className: '',
-                    iconSize: L.point(40, 40),
-                    iconAnchor: L.point(20, 40),
-                    popupAnchor: L.point(0, -40),
+                    iconSize: L.point(44, 44),
+                    iconAnchor: L.point(22, 44),
+                    popupAnchor: L.point(0, -44),
                 })
 
                 const marker = L.marker([loc.latitude, loc.longitude], { icon })
@@ -111,10 +112,8 @@ return
         map.flyTo([lat, lng], zoom, { animate: true, duration: 0.6 })
     }
 
-    const showUserLocation = (lat, lng) => {
-        if (!map) {
-return
-}
+    const showUserLocation = (lat, lng, accuracy = null) => {
+        if (!map) return
 
         const icon = L.divIcon({
             html: '<div class="user-location-marker"></div>',
@@ -128,6 +127,31 @@ return
         } else {
             userMarker = L.marker([lat, lng], { icon }).addTo(map)
         }
+
+        if (accuracy && accuracy > 50) {
+            if (userAccuracyCircle) {
+                userAccuracyCircle.setLatLng([lat, lng]).setRadius(accuracy)
+            } else {
+                userAccuracyCircle = L.circle([lat, lng], {
+                    radius: accuracy,
+                    color: '#3B82F6',
+                    fillColor: '#3B82F6',
+                    fillOpacity: 0.08,
+                    weight: 1,
+                }).addTo(map)
+            }
+        }
+    }
+
+    const removeUserLocation = () => {
+        if (userMarker) {
+            map?.removeLayer(userMarker)
+            userMarker = null
+        }
+        if (userAccuracyCircle) {
+            map?.removeLayer(userAccuracyCircle)
+            userAccuracyCircle = null
+        }
     }
 
     const getMap = () => map
@@ -138,7 +162,8 @@ return
         map = null
         clusterGroup = null
         userMarker = null
+        userAccuracyCircle = null
     })
 
-    return { init, setTrucks, flyTo, showUserLocation, getMap }
+    return { init, setTrucks, flyTo, showUserLocation, removeUserLocation, getMap }
 }

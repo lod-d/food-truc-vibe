@@ -32,7 +32,7 @@ const toggleDay = (form: any, day: number) => {
                     v-for="d in DAYS"
                     :key="d.value"
                     type="button"
-                    class="flex-1 py-2 text-sm rounded-md border transition-colors duration-100"
+                    class="flex-1 py-3 text-sm rounded-md border transition-colors duration-100"
                     :class="form.days.includes(d.value)
                         ? 'bg-coral-400 text-white border-coral-400'
                         : 'border-warm-200 text-warm-900 hover:bg-warm-50'"
@@ -51,7 +51,7 @@ const toggleDay = (form: any, day: number) => {
                 <input
                     v-model="form.opens_at"
                     type="time"
-                    class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
+                    class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
                 />
                 <p v-if="form.errors.opens_at" class="text-xs text-red-500 mt-1">{{ form.errors.opens_at }}</p>
             </div>
@@ -60,7 +60,7 @@ const toggleDay = (form: any, day: number) => {
                 <input
                     v-model="form.closes_at"
                     type="time"
-                    class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
+                    class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
                 />
                 <p v-if="form.errors.closes_at" class="text-xs text-red-500 mt-1">{{ form.errors.closes_at }}</p>
             </div>
@@ -72,7 +72,7 @@ const toggleDay = (form: any, day: number) => {
             <div class="flex gap-3">
                 <button
                     type="button"
-                    class="flex-1 py-2 text-sm rounded-md border transition-colors duration-100"
+                    class="flex-1 py-3 text-sm rounded-md border transition-colors duration-100"
                     :class="form.is_recurring
                         ? 'bg-coral-400 text-white border-coral-400'
                         : 'border-warm-200 text-warm-900 hover:bg-warm-50'"
@@ -82,7 +82,7 @@ const toggleDay = (form: any, day: number) => {
                 </button>
                 <button
                     type="button"
-                    class="flex-1 py-2 text-sm rounded-md border transition-colors duration-100"
+                    class="flex-1 py-3 text-sm rounded-md border transition-colors duration-100"
                     :class="!form.is_recurring
                         ? 'bg-coral-400 text-white border-coral-400'
                         : 'border-warm-200 text-warm-900 hover:bg-warm-50'"

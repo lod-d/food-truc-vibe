@@ -26,7 +26,7 @@ const submit = () => form.post('/inscription')
                             v-model="form.name"
                             type="text"
                             autocomplete="name"
-                            class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
+                            class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
                         />
                         <p v-if="form.errors.name" class="text-xs text-red-500 mt-1">{{ form.errors.name }}</p>
                     </div>
@@ -37,7 +37,7 @@ const submit = () => form.post('/inscription')
                             v-model="form.email"
                             type="email"
                             autocomplete="email"
-                            class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
+                            class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
                         />
                         <p v-if="form.errors.email" class="text-xs text-red-500 mt-1">{{ form.errors.email }}</p>
                     </div>
@@ -48,7 +48,7 @@ const submit = () => form.post('/inscription')
                             v-model="form.password"
                             type="password"
                             autocomplete="new-password"
-                            class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
+                            class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
                         />
                         <p v-if="form.errors.password" class="text-xs text-red-500 mt-1">{{ form.errors.password }}</p>
                     </div>
@@ -59,7 +59,7 @@ const submit = () => form.post('/inscription')
                             v-model="form.password_confirmation"
                             type="password"
                             autocomplete="new-password"
-                            class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
+                            class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent"
                         />
                     </div>
 

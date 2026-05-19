@@ -37,7 +37,7 @@ return
                 v-model="form.name"
                 type="text"
                 placeholder="Ex: Burger Bros"
-                class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
+                class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
                 :class="duplicateWarning ? 'border-amber-400 focus:ring-amber-400' : ''"
             />
             <p v-if="form.errors.name" class="text-xs text-red-500 mt-1">{{ form.errors.name }}</p>
@@ -54,7 +54,7 @@ return
                     v-for="c in cuisines"
                     :key="c.id"
                     type="button"
-                    class="text-sm rounded-full px-3 py-1.5 border transition-colors duration-100"
+                    class="text-sm rounded-full px-4 py-2.5 border transition-colors duration-100"
                     :class="form.cuisine_id === c.id
                         ? 'bg-coral-400 text-white border-coral-400'
                         : 'border-warm-200 text-warm-900 hover:bg-warm-50'"
@@ -73,7 +73,7 @@ return
                 v-model="form.description"
                 rows="3"
                 placeholder="Décrivez votre cuisine, vos spécialités..."
-                class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500 resize-none"
+                class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500 resize-none"
             />
         </div>
 
@@ -84,7 +84,7 @@ return
                 v-model="form.email"
                 type="email"
                 placeholder="contact@montruck.fr"
-                class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
+                class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
             />
             <p v-if="form.errors.email" class="text-xs text-red-500 mt-1">{{ form.errors.email }}</p>
         </div>
@@ -107,7 +107,7 @@ return
                 v-model="form.phone"
                 type="tel"
                 placeholder="06 12 34 56 78"
-                class="w-full border border-warm-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
+                class="w-full border border-warm-200 rounded-md px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-coral-400 focus:border-transparent placeholder:text-warm-500"
             />
         </div>
 
@@ -120,7 +120,7 @@ return
                     v-model="form.instagram_url"
                     type="text"
                     placeholder="monburgertruck"
-                    class="flex-1 px-2 py-2 text-sm focus:outline-none rounded-md"
+                    class="flex-1 px-2 py-3 text-sm focus:outline-none rounded-md"
                 />
             </div>
         </div>

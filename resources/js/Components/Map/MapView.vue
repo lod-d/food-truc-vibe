@@ -12,7 +12,7 @@ const emit = defineEmits<{
 }>()
 
 const mapContainer = ref<HTMLElement | null>(null)
-const { init, setTrucks, flyTo, showUserLocation } = useMap(mapContainer)
+const { init, setTrucks, flyTo, showUserLocation, removeUserLocation } = useMap(mapContainer)
 
 onMounted(() => {
     init((bounds: any) => emit('bounds-changed', bounds))
@@ -23,7 +23,7 @@ watch(() => props.trucks, (newTrucks) => {
     setTrucks(newTrucks, (truck: any, loc: any) => emit('truck-selected', truck, loc))
 })
 
-defineExpose({ flyTo, showUserLocation })
+defineExpose({ flyTo, showUserLocation, removeUserLocation })
 </script>
 
 <template>

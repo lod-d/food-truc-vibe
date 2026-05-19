@@ -132,13 +132,20 @@ const onBoundsChanged = (bounds: any) => {
 const locating = ref(false)
 const located = ref(false)
 const locateError = ref<string | null>(null)
+const userCoords = ref<{ lat: number; lng: number; accuracy: number } | null>(null)
+let errorTimer: ReturnType<typeof setTimeout> | null = null
+
+const setLocateError = (msg: string) => {
+    if (errorTimer) clearTimeout(errorTimer)
+    locateError.value = msg
+    errorTimer = setTimeout(() => { locateError.value = null }, 5000)
+}
 
 const onLocateMe = () => {
     if (!navigator.geolocation) {
- locateError.value = 'Géolocalisation non supportée';
-
- return
-}
+        setLocateError('Géolocalisation non supportée par votre navigateur')
+        return
+    }
 
     locating.value = true
     locateError.value = null
@@ -146,14 +153,38 @@ const onLocateMe = () => {
         ({ coords }) => {
             locating.value = false
             located.value = true
+            userCoords.value = { lat: coords.latitude, lng: coords.longitude, accuracy: coords.accuracy }
+
+            filters.value.lat = coords.latitude
+            filters.value.lng = coords.longitude
+            filters.value.bounds = null
+            selectedCityName.value = null
+
             mapViewRef.value?.flyTo(coords.latitude, coords.longitude, 13)
-            mapViewRef.value?.showUserLocation(coords.latitude, coords.longitude)
+            mapViewRef.value?.showUserLocation(coords.latitude, coords.longitude, coords.accuracy)
         },
-        () => {
- locating.value = false; locateError.value = 'Impossible de vous localiser'
-},
-        { timeout: 8000 }
+        (err) => {
+            locating.value = false
+            const msg = err.code === 1 ? 'Permission refusée. Vérifiez les paramètres de votre navigateur.'
+                      : err.code === 3 ? "Délai d'attente dépassé. Réessayez."
+                      : 'Position non disponible. Réessayez.'
+            setLocateError(msg)
+        },
+        { timeout: 8000, enableHighAccuracy: false }
     )
+}
+
+const onRecenter = () => {
+    if (!userCoords.value) return
+    mapViewRef.value?.flyTo(userCoords.value.lat, userCoords.value.lng, 13)
+}
+
+const onForgetLocation = () => {
+    located.value = false
+    userCoords.value = null
+    filters.value.lat = null
+    filters.value.lng = null
+    mapViewRef.value?.removeUserLocation()
 }
 </script>
 
@@ -197,21 +228,21 @@ const onLocateMe = () => {
                         v-model="searchQuery"
                         type="text"
                         placeholder="Rechercher un truck…"
-                        class="w-full text-xs rounded-md border border-warm-200 bg-warm-50 px-3 py-2 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
+                        class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
                     />
 
                     <!-- City search -->
                     <div class="relative">
-                        <div v-if="selectedCityName" class="flex items-center gap-2 rounded-md border border-coral-400 bg-coral-50 px-3 py-2">
-                            <span class="flex-1 text-xs text-warm-900 truncate">📍 {{ selectedCityName }}</span>
-                            <button class="text-warm-400 hover:text-warm-900 text-xs leading-none" @click="clearCityFilter">✕</button>
+                        <div v-if="selectedCityName" class="flex items-center gap-2 rounded-md border border-coral-400 bg-coral-50 px-3 py-3">
+                            <span class="flex-1 text-sm text-warm-900 truncate">📍 {{ selectedCityName }}</span>
+                            <button class="text-warm-400 hover:text-warm-900 text-sm leading-none w-6 h-6 flex items-center justify-center" @click="clearCityFilter">✕</button>
                         </div>
                         <input
                             v-else
                             v-model="cityQuery"
                             type="text"
                             placeholder="Ville ou code postal…"
-                            class="w-full text-xs rounded-md border border-warm-200 bg-warm-50 px-3 py-2 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
+                            class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
                         />
                         <div
                             v-if="showCityDropdown"
@@ -234,7 +265,7 @@ const onLocateMe = () => {
                         <button
                             v-for="km in [10, 25, 50, 100]"
                             :key="km"
-                            class="flex-1 px-2 py-2 border-r border-warm-200 last:border-0 transition-colors"
+                            class="flex-1 px-2 py-3 border-r border-warm-200 last:border-0 transition-colors"
                             :class="filters.radius === km ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
                             @click="filters.radius = km; mapViewRef.value?.flyTo(filters.lat, filters.lng, zoomForRadius[km] ?? 11)"
                         >{{ km }} km</button>
@@ -243,17 +274,17 @@ const onLocateMe = () => {
                     <!-- Date buttons -->
                     <div class="flex rounded-lg border border-warm-200 overflow-hidden text-xs">
                         <button
-                            class="flex-1 px-3 py-2 border-r border-warm-200 transition-colors duration-100"
+                            class="flex-1 px-3 py-3 border-r border-warm-200 transition-colors duration-100"
                             :class="isToday ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
                             @click="selectToday"
                         >Aujourd'hui</button>
                         <button
-                            class="flex-1 px-3 py-2 border-r border-warm-200 transition-colors duration-100"
+                            class="flex-1 px-3 py-3 border-r border-warm-200 transition-colors duration-100"
                             :class="isTomorrow ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
                             @click="selectTomorrow"
                         >Demain</button>
                         <button
-                            class="flex-1 px-3 py-2 transition-colors duration-100"
+                            class="flex-1 px-3 py-3 transition-colors duration-100"
                             :class="isCustomDate ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
                             @click="selectCustom"
                         >Autre date</button>
@@ -263,7 +294,7 @@ const onLocateMe = () => {
                         v-model="selectedDate"
                         type="date"
                         :min="today"
-                        class="w-full text-xs rounded-md border border-warm-200 bg-warm-50 px-3 py-2 text-warm-900 focus:outline-none focus:border-coral-400"
+                        class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 focus:outline-none focus:border-coral-400"
                         @change="showCustomDatePicker = false"
                     />
 
@@ -322,14 +353,14 @@ const onLocateMe = () => {
                         >
                             <div class="flex items-start gap-3">
                                 <!-- Photo ou emoji -->
-                                <div class="shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-coral-50 flex items-center justify-center">
+                                <div class="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-coral-50 flex items-center justify-center">
                                     <img
                                         v-if="truck.photo_url"
                                         :src="truck.photo_url"
                                         :alt="truck.name"
                                         class="w-full h-full object-cover"
                                     />
-                                    <span v-else class="text-2xl leading-none">{{ truck.cuisine.emoji }}</span>
+                                    <span v-else class="text-3xl leading-none">{{ truck.cuisine.emoji }}</span>
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-start justify-between gap-1 mb-0.5">
@@ -356,7 +387,7 @@ const onLocateMe = () => {
                     </button>
                     <button
                         v-if="hasMore"
-                        class="w-full text-xs text-warm-500 hover:text-warm-900 py-3 transition-colors"
+                        class="w-full text-sm text-warm-500 hover:text-warm-900 py-4 transition-colors"
                         :disabled="loadingMore"
                         @click="loadMore"
                     >
@@ -384,7 +415,7 @@ const onLocateMe = () => {
                         <p class="text-sm font-medium text-warm-900 mb-1">Où cherchez-vous ?</p>
                         <p class="text-xs text-warm-500 mb-4">Entrez une ville dans le panneau<br>ou activez la localisation</p>
                         <button
-                            class="inline-flex items-center gap-1.5 bg-coral-400 hover:bg-coral-600 text-white text-xs rounded-full px-4 py-2 transition-colors disabled:opacity-50"
+                            class="inline-flex items-center gap-1.5 bg-coral-400 hover:bg-coral-600 text-white text-sm rounded-full px-5 py-3 transition-colors disabled:opacity-50"
                             :disabled="locating"
                             @click="onLocateMe"
                         >
@@ -399,7 +430,7 @@ const onLocateMe = () => {
                 <!-- Bouton géolocalisation — overlay top-left -->
                 <button
                     v-if="!located"
-                    class="absolute top-4 left-4 z-1000 flex items-center gap-1.5 bg-white rounded-full px-3 py-1.5 text-xs font-medium text-warm-900 shadow-md border border-warm-200 hover:bg-warm-50 disabled:opacity-50 transition-opacity"
+                    class="absolute top-4 left-4 z-1000 flex items-center gap-1.5 bg-white rounded-full px-4 py-2.5 text-xs font-medium text-warm-900 shadow-md border border-warm-200 hover:bg-warm-50 disabled:opacity-50 transition-opacity"
                     :disabled="locating"
                     @click="onLocateMe"
                 >
@@ -409,6 +440,25 @@ const onLocateMe = () => {
                     </svg>
                     {{ locating ? 'Localisation…' : 'Me localiser' }}
                 </button>
+
+                <!-- Recentrer + oublier (quand localisé) -->
+                <div v-else class="absolute top-4 left-4 z-1000 flex items-center gap-2">
+                    <button
+                        class="flex items-center gap-1.5 bg-white rounded-full px-4 py-2.5 text-xs font-medium text-warm-900 shadow-md border border-warm-200 hover:bg-warm-50 transition-colors"
+                        @click="onRecenter"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+                        </svg>
+                        Recentrer
+                    </button>
+                    <button
+                        class="w-9 h-9 flex items-center justify-center bg-white rounded-full text-warm-500 hover:text-warm-900 shadow-md border border-warm-200 hover:bg-warm-50 transition-colors text-sm"
+                        title="Oublier ma position"
+                        @click="onForgetLocation"
+                    >✕</button>
+                </div>
 
                 <!-- Erreur géolocalisation -->
                 <div
@@ -453,21 +503,21 @@ const onLocateMe = () => {
                     v-model="searchQuery"
                     type="text"
                     placeholder="Rechercher un truck…"
-                    class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-2 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
+                    class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
                 />
 
                 <!-- City search -->
                 <div class="relative">
-                    <div v-if="selectedCityName" class="flex items-center gap-2 rounded-md border border-coral-400 bg-coral-50 px-3 py-2">
+                    <div v-if="selectedCityName" class="flex items-center gap-2 rounded-md border border-coral-400 bg-coral-50 px-3 py-3">
                         <span class="flex-1 text-sm text-warm-900 truncate">📍 {{ selectedCityName }}</span>
-                        <button class="text-warm-400 hover:text-warm-900 text-sm leading-none" @click="clearCityFilter">✕</button>
+                        <button class="text-warm-400 hover:text-warm-900 text-sm leading-none w-6 h-6 flex items-center justify-center" @click="clearCityFilter">✕</button>
                     </div>
                     <input
                         v-else
                         v-model="cityQuery"
                         type="text"
                         placeholder="Ville ou code postal…"
-                        class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-2 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
+                        class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
                     />
                     <div
                         v-if="showCityDropdown"
@@ -476,7 +526,7 @@ const onLocateMe = () => {
                         <button
                             v-for="r in cityResults"
                             :key="r.place_id"
-                            class="w-full text-left px-3 py-2 text-sm text-warm-900 hover:bg-warm-50 border-b border-warm-100 last:border-0"
+                            class="w-full text-left px-3 py-3 text-sm text-warm-900 hover:bg-warm-50 border-b border-warm-100 last:border-0"
                             @click="onCitySelect(r)"
                         >
                             {{ r.address?.city || r.address?.town || r.address?.village || r.address?.county }}
@@ -490,7 +540,7 @@ const onLocateMe = () => {
                     <button
                         v-for="km in [10, 25, 50, 100]"
                         :key="km"
-                        class="flex-1 px-2 py-2 border-r border-warm-200 last:border-0 transition-colors"
+                        class="flex-1 px-2 py-3 border-r border-warm-200 last:border-0 transition-colors"
                         :class="filters.radius === km ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
                         @click="filters.radius = km; mapViewRef.value?.flyTo(filters.lat, filters.lng, zoomForRadius[km] ?? 11)"
                     >{{ km }} km</button>
@@ -499,17 +549,17 @@ const onLocateMe = () => {
                 <!-- Date buttons -->
                 <div class="flex rounded-lg border border-warm-200 overflow-hidden text-xs">
                     <button
-                        class="flex-1 px-2 py-2 border-r border-warm-200 transition-colors"
+                        class="flex-1 px-2 py-3 border-r border-warm-200 transition-colors"
                         :class="isToday ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
                         @click="selectToday"
                     >Aujourd'hui</button>
                     <button
-                        class="flex-1 px-2 py-2 border-r border-warm-200 transition-colors"
+                        class="flex-1 px-2 py-3 border-r border-warm-200 transition-colors"
                         :class="isTomorrow ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
                         @click="selectTomorrow"
                     >Demain</button>
                     <button
-                        class="flex-1 px-2 py-2 transition-colors"
+                        class="flex-1 px-2 py-3 transition-colors"
                         :class="isCustomDate ? 'bg-coral-400 text-white' : 'text-warm-900 hover:bg-warm-50'"
                         @click="selectCustom"
                     >Autre date</button>
@@ -519,7 +569,7 @@ const onLocateMe = () => {
                     v-model="selectedDate"
                     type="date"
                     :min="today"
-                    class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-2 text-warm-900 focus:outline-none focus:border-coral-400"
+                    class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 focus:outline-none focus:border-coral-400"
                     @change="showCustomDatePicker = false"
                 />
 
@@ -570,14 +620,14 @@ const onLocateMe = () => {
                 >
                     <AppCard class="transition-colors duration-100 hover:border-coral-200">
                         <div class="flex items-center gap-3">
-                            <div class="shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-coral-50 flex items-center justify-center">
+                            <div class="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-coral-50 flex items-center justify-center">
                                 <img
                                     v-if="truck.photo_url"
                                     :src="truck.photo_url"
                                     :alt="truck.name"
                                     class="w-full h-full object-cover"
                                 />
-                                <span v-else class="text-xl leading-none">{{ truck.cuisine.emoji }}</span>
+                                <span v-else class="text-2xl leading-none">{{ truck.cuisine.emoji }}</span>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-warm-900 truncate">{{ truck.name }}</p>
