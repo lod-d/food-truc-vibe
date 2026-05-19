@@ -61,6 +61,7 @@ class AuthController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
+        event(new \Illuminate\Auth\Events\Registered($user));
 
         return redirect()->intended(route('admin.index'));
     }
