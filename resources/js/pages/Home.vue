@@ -213,7 +213,7 @@ const activeFiltersCount = computed(() => {
         <!-- Barre de recherche mobile — input direct + bouton filtres -->
         <div
             v-if="!showFilterModal"
-            class="md:hidden fixed top-16 left-3 right-3 z-50 flex items-center gap-2"
+            class="md:hidden fixed top-16 left-3 right-3 z-1100 flex items-center gap-2"
         >
             <!-- Input recherche -->
             <div class="flex-1 flex items-center bg-white rounded-full shadow-lg border border-warm-200 pl-4 pr-2">
@@ -616,7 +616,7 @@ const activeFiltersCount = computed(() => {
         <!-- Modale recherche/filtres mobile -->
         <div
             v-if="showFilterModal"
-            class="md:hidden fixed inset-0 z-60 bg-white flex flex-col"
+            class="md:hidden fixed inset-0 z-1200 bg-white flex flex-col"
         >
             <!-- Header -->
             <header class="flex items-center justify-between px-4 py-3 border-b border-warm-200 shrink-0">
