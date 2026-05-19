@@ -11,44 +11,44 @@
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
     /* Couleurs coral */
-    --color-coral-50:  #FAECE7;
-    --color-coral-400: #D85A30;
-    --color-coral-600: #993C1D;
+    --color-coral-50: #faece7;
+    --color-coral-400: #d85a30;
+    --color-coral-600: #993c1d;
 
     /* Neutres warm-gray */
-    --color-warm-50:  #F1EFE8;
-    --color-warm-200: #D3D1C7;
+    --color-warm-50: #f1efe8;
+    --color-warm-200: #d3d1c7;
     --color-warm-500: #888780;
-    --color-warm-900: #2C2C2A;
+    --color-warm-900: #2c2c2a;
 
     /* Sémantiques */
-    --color-open-50:  #EAF3DE;
+    --color-open-50: #eaf3de;
     --color-open-600: #639922;
 
     /* Border radius */
-    --radius-sm:   6px;
-    --radius-md:   8px;
-    --radius-lg:   12px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
     --radius-pill: 9999px;
 }
 
 /* ─── Leaflet markers ─────────────────────────────────────── */
 .truck-marker {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
-    background: #D85A30;
+    background: #d85a30;
     border: 2px solid white;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .truck-marker.closed {
     background: #888780;
-    opacity: .65;
+    opacity: 0.65;
 }
 
 .truck-marker .emoji {
@@ -61,7 +61,7 @@
 .truck-cluster {
     width: 40px;
     height: 40px;
-    background: #D85A30;
+    background: #d85a30;
     border: 3px solid rgba(216, 90, 48, 0.25);
     border-radius: 50%;
     display: flex;
@@ -77,22 +77,28 @@
 .user-location-marker {
     width: 20px;
     height: 20px;
-    background: #3B82F6;
+    background: #3b82f6;
     border: 3px solid white;
     border-radius: 50%;
     animation: user-pulse 2s infinite;
 }
 
 @keyframes user-pulse {
-    0%   { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-    70%  { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
 }
 
 /* ─── Leaflet popups ──────────────────────────────────────── */
 .leaflet-popup-content-wrapper {
     border-radius: 12px !important;
-    border: 0.5px solid #D3D1C7 !important;
+    border: 0.5px solid #d3d1c7 !important;
     box-shadow: none !important;
     padding: 0 !important;
 }

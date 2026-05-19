@@ -1,34 +1,43 @@
 <script setup lang="ts">
-import { useForm, usePage } from '@inertiajs/vue3'
-import AppLayout from '../../Layouts/AppLayout.vue'
+import { useForm, usePage } from '@inertiajs/vue3';
+import AppLayout from '../../Layouts/AppLayout.vue';
 
-const page = usePage()
-const form = useForm({})
+const page = usePage<{ flash?: { success?: string } }>();
+const form = useForm({});
 
-const resend = () => form.post('/email/verification-notification')
+const resend = () => form.post('/email/verification-notification');
 </script>
 
 <template>
     <AppLayout>
-        <div class="min-h-[calc(100vh-56px)] bg-warm-50 flex items-start justify-center p-4 pt-12">
-            <div class="w-full max-w-sm bg-white border border-warm-200 rounded-xl p-6 shadow-sm">
-                <h1 class="text-xl font-medium text-warm-900 mb-4">Vérifiez votre email</h1>
+        <div
+            class="flex min-h-[calc(100vh-56px)] items-start justify-center bg-warm-50 p-4 pt-12"
+        >
+            <div
+                class="w-full max-w-sm rounded-xl border border-warm-200 bg-white p-6 shadow-sm"
+            >
+                <h1 class="mb-4 text-xl font-medium text-warm-900">
+                    Vérifiez votre email
+                </h1>
 
-                <p class="text-sm text-warm-900 mb-6">
-                    Un lien de vérification a été envoyé à votre adresse email. Cliquez sur ce lien pour activer votre compte.
+                <p class="mb-6 text-sm text-warm-900">
+                    Un lien de vérification a été envoyé à votre adresse email.
+                    Cliquez sur ce lien pour activer votre compte.
                 </p>
 
                 <div
                     v-if="page.props.flash?.success"
-                    class="mb-4 text-sm text-open-600 bg-open-50 border border-open-600/20 rounded-md px-3 py-2"
+                    class="mb-4 rounded-md border border-open-600/20 bg-open-50 px-3 py-2 text-sm text-open-600"
                 >
                     {{ page.props.flash.success }}
                 </div>
 
                 <button
                     type="button"
-                    class="w-full bg-coral-400 hover:bg-coral-600 text-white text-sm rounded-md py-2 transition-colors"
-                    :class="{ 'opacity-50 cursor-not-allowed': form.processing }"
+                    class="w-full rounded-md bg-coral-400 py-2 text-sm text-white transition-colors hover:bg-coral-600"
+                    :class="{
+                        'cursor-not-allowed opacity-50': form.processing,
+                    }"
                     :disabled="form.processing"
                     @click="resend"
                 >

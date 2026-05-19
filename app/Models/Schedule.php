@@ -13,6 +13,7 @@ class Schedule extends Model
     use HasUuids;
 
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -47,10 +48,10 @@ class Schedule extends Model
             ->where(function ($q) use ($date, $dayIndex) {
                 $q->where(function ($q) use ($dayIndex) {
                     $q->where('is_recurring', true)
-                      ->where('day_of_week', $dayIndex);
+                        ->where('day_of_week', $dayIndex);
                 })->orWhere(function ($q) use ($date) {
                     $q->where('is_recurring', false)
-                      ->whereDate('specific_date', $date->toDateString());
+                        ->whereDate('specific_date', $date->toDateString());
                 });
             });
     }
@@ -58,6 +59,7 @@ class Schedule extends Model
     public function scopeOpenNow(Builder $query): Builder
     {
         $now = now();
+
         return $query->openToday($now)
             ->where('opens_at', '<=', $now->toTimeString())
             ->where('closes_at', '>=', $now->toTimeString());

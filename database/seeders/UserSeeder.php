@@ -13,8 +13,8 @@ class UserSeeder extends Seeder
         User::firstOrCreate(
             ['email' => 'dev@truckmap.fr'],
             [
-                'name'              => 'Dev',
-                'password'          => Hash::make('password'),
+                'name' => 'Dev',
+                'password' => Hash::make('password'),
                 'email_verified_at' => now(),
             ]
         );

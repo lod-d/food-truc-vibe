@@ -29,16 +29,16 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         Inertia::share([
-            'cuisines' => fn() => Cuisine::select('id', 'name', 'slug', 'emoji')
+            'cuisines' => fn () => Cuisine::select('id', 'name', 'slug', 'emoji')
                 ->orderBy('name')
                 ->get(),
-            'flash' => fn() => [
+            'flash' => fn () => [
                 'success' => session('success'),
-                'error'   => session('error'),
+                'error' => session('error'),
             ],
-            'auth' => fn() => [
+            'auth' => fn () => [
                 'user' => auth()->check() ? [
-                    'id'   => auth()->id(),
+                    'id' => auth()->id(),
                     'name' => auth()->user()->name,
                 ] : null,
             ],

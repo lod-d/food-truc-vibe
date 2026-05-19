@@ -21,18 +21,21 @@ Route::post('/deconnexion', [AuthController::class, 'logout'])->middleware('auth
 
 // Email verification
 Route::middleware('auth')->group(function () {
-    Route::get('/email/verify', fn() => inertia('Auth/VerifyEmail'))->name('verification.notice');
+    Route::get('/email/verify', fn () => inertia('Auth/VerifyEmail'))->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
         $request->fulfill();
+
         return redirect()->route('home')->with('success', 'Email vérifié avec succès !');
     })->middleware('signed')->name('verification.verify');
     Route::post('/email/verification-notification', function (Request $request) {
         try {
             $request->user()->sendEmailVerificationNotification();
-        } catch (\Exception $e) {
-            \Log::error('Mail verification failed: ' . $e->getMessage());
-            return back()->withErrors(['email' => 'Erreur lors de l\'envoi : ' . $e->getMessage()]);
+        } catch (Exception $e) {
+            Log::error('Mail verification failed: '.$e->getMessage());
+
+            return back()->withErrors(['email' => 'Erreur lors de l\'envoi : '.$e->getMessage()]);
         }
+
         return back()->with('success', 'Lien de vérification renvoyé.');
     })->middleware('throttle:6,1')->name('verification.send');
 });
