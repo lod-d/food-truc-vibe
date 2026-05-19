@@ -1,37 +1,41 @@
 <script setup lang="ts">
-import { Link, router, usePage } from '@inertiajs/vue3'
+import { Link, router, usePage } from '@inertiajs/vue3';
 
 const page = usePage<{
-    auth: { user: { id: string; name: string } | null }
-}>()
+    auth: { user: { id: string; name: string } | null };
+}>();
 
-const logout = () => router.post('/deconnexion')
+const logout = () => router.post('/deconnexion');
 </script>
 
 <template>
     <div class="min-h-screen bg-warm-50 font-sans">
         <!-- Navbar -->
-        <header class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-warm-200 h-14">
-            <div class="max-w-full px-4 h-full flex items-center gap-4">
-                <Link href="/" class="flex items-center gap-2 shrink-0">
+        <header
+            class="fixed top-0 right-0 left-0 z-50 h-14 border-b border-warm-200 bg-white"
+        >
+            <div class="flex h-full max-w-full items-center gap-4 px-4">
+                <Link href="/" class="flex shrink-0 items-center gap-2">
                     <span class="text-xl">🚚</span>
-                    <span class="text-sm font-medium text-warm-900">TruckMap</span>
+                    <span class="text-sm font-medium text-warm-900"
+                        >TruckMap</span
+                    >
                 </Link>
 
                 <div class="flex-1" />
 
                 <!-- Auth area -->
-                <div class="flex items-center gap-3 shrink-0">
+                <div class="flex shrink-0 items-center gap-3">
                     <template v-if="page.props.auth?.user">
                         <!-- Desktop -->
                         <Link
                             href="/mon-truck"
-                            class="text-sm text-warm-900 hover:text-coral-400 transition-colors hidden md:inline"
+                            class="hidden text-sm text-warm-900 transition-colors hover:text-coral-400 md:inline"
                         >
                             Mon espace
                         </Link>
                         <button
-                            class="text-xs text-warm-400 hover:text-warm-700 transition-colors hidden md:inline shrink-0"
+                            class="text-warm-400 hover:text-warm-700 hidden shrink-0 text-xs transition-colors md:inline"
                             @click="logout"
                         >
                             Déconnexion
@@ -39,7 +43,7 @@ const logout = () => router.post('/deconnexion')
                         <!-- Mobile: CTA vers admin -->
                         <Link
                             href="/mon-truck"
-                            class="md:hidden bg-coral-400 hover:bg-coral-600 text-white text-sm font-medium rounded-md px-4 py-2 transition-colors duration-150 shrink-0"
+                            class="shrink-0 rounded-md bg-coral-400 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-coral-600 md:hidden"
                         >
                             Mon espace
                         </Link>
@@ -47,14 +51,16 @@ const logout = () => router.post('/deconnexion')
                     <template v-else>
                         <Link
                             href="/connexion"
-                            class="text-sm text-warm-900 hover:text-coral-400 transition-colors hidden md:inline"
+                            class="hidden text-sm text-warm-900 transition-colors hover:text-coral-400 md:inline"
                         >
                             Connexion
                         </Link>
-                        <div class="w-px h-4 bg-warm-200 hidden md:block shrink-0" />
+                        <div
+                            class="hidden h-4 w-px shrink-0 bg-warm-200 md:block"
+                        />
                         <Link
                             href="/enregistrer"
-                            class="bg-coral-400 hover:bg-coral-600 text-white text-sm font-medium rounded-md px-4 py-2 transition-colors duration-150 shrink-0"
+                            class="shrink-0 rounded-md bg-coral-400 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-coral-600"
                         >
                             + Mon truck
                         </Link>

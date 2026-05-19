@@ -11,6 +11,7 @@ class Cuisine extends Model
     use HasUuids;
 
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = ['name', 'slug', 'emoji'];
