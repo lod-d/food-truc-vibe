@@ -130,13 +130,14 @@ const onBoundsChanged = (bounds: any) => {
 
 // Geolocation
 const locating = ref(false)
+const located = ref(false)
 const locateError = ref<string | null>(null)
 
 const onLocateMe = () => {
     if (!navigator.geolocation) {
  locateError.value = 'Géolocalisation non supportée';
 
- return 
+ return
 }
 
     locating.value = true
@@ -144,11 +145,12 @@ const onLocateMe = () => {
     navigator.geolocation.getCurrentPosition(
         ({ coords }) => {
             locating.value = false
+            located.value = true
             mapViewRef.value?.flyTo(coords.latitude, coords.longitude, 13)
             mapViewRef.value?.showUserLocation(coords.latitude, coords.longitude)
         },
         () => {
- locating.value = false; locateError.value = 'Impossible de vous localiser' 
+ locating.value = false; locateError.value = 'Impossible de vous localiser'
 },
         { timeout: 8000 }
     )
@@ -396,6 +398,7 @@ const onLocateMe = () => {
 
                 <!-- Bouton géolocalisation — overlay top-left -->
                 <button
+                    v-if="!located"
                     class="absolute top-4 left-4 z-1000 flex items-center gap-1.5 bg-white rounded-full px-3 py-1.5 text-xs font-medium text-warm-900 shadow-md border border-warm-200 hover:bg-warm-50 disabled:opacity-50 transition-opacity"
                     :disabled="locating"
                     @click="onLocateMe"

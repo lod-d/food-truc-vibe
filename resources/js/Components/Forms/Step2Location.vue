@@ -122,6 +122,7 @@ const selectSuggestion = (s: any) => {
             <label class="block text-xs text-warm-500 mb-1">Cliquez sur la carte pour placer votre emplacement *</label>
             <div ref="mapContainer" class="w-full h-52 rounded-lg border border-warm-200 overflow-hidden" />
             <p v-if="form.errors.latitude" class="text-xs text-red-500 mt-1">{{ form.errors.latitude }}</p>
+            <p v-if="form.errors.city" class="text-xs text-red-500 mt-1">{{ form.errors.city }}</p>
         </div>
 
         <!-- Coordonnées (readonly) -->
