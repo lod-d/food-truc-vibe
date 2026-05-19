@@ -210,27 +210,51 @@ const activeFiltersCount = computed(() => {
             {{ page.props.flash.success }}
         </div>
 
-        <!-- Pill recherche mobile — fixed pour échapper aux stacking contexts -->
-        <button
+        <!-- Barre de recherche mobile — input direct + bouton filtres -->
+        <div
             v-if="!showFilterModal"
-            class="md:hidden fixed top-16 left-3 right-3 z-50 flex items-center gap-3 bg-white rounded-full pl-4 pr-2 py-2.5 shadow-lg border border-warm-200 hover:bg-warm-50 transition-colors"
-            @click="showFilterModal = true"
+            class="md:hidden fixed top-16 left-3 right-3 z-50 flex items-center gap-2"
         >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warm-500 shrink-0">
-                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-            </svg>
-            <span class="flex-1 text-left text-sm truncate" :class="searchQuery || selectedCityName ? 'text-warm-900' : 'text-warm-500'">
-                {{ searchQuery || selectedCityName || 'Rechercher un truck, une ville…' }}
-            </span>
-            <span v-if="activeFiltersCount > 0" class="shrink-0 inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-coral-400 text-white text-xs font-medium">
-                {{ activeFiltersCount }}
-            </span>
-            <span v-else class="shrink-0 w-7 h-7 flex items-center justify-center rounded-full bg-warm-50 text-warm-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Input recherche -->
+            <div class="flex-1 flex items-center bg-white rounded-full shadow-lg border border-warm-200 pl-4 pr-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warm-500 shrink-0">
+                    <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+                </svg>
+                <input
+                    v-model="searchQuery"
+                    type="text"
+                    placeholder="Rechercher un truck…"
+                    class="flex-1 bg-transparent text-sm px-3 py-2.5 text-warm-900 placeholder:text-warm-500 focus:outline-none min-w-0"
+                />
+                <button
+                    v-if="searchQuery"
+                    class="shrink-0 w-7 h-7 flex items-center justify-center rounded-full text-warm-500 hover:bg-warm-50 hover:text-warm-900"
+                    aria-label="Effacer la recherche"
+                    @click="searchQuery = ''"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Bouton filtres -->
+            <button
+                class="relative shrink-0 w-11 h-11 flex items-center justify-center bg-white rounded-full shadow-lg border border-warm-200 hover:bg-warm-50 transition-colors"
+                aria-label="Filtres"
+                @click="showFilterModal = true"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warm-900">
                     <line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="14" y2="12" /><line x1="4" y1="18" x2="10" y2="18" />
                 </svg>
-            </span>
-        </button>
+                <span
+                    v-if="activeFiltersCount > 0"
+                    class="absolute -top-1 -right-1 min-w-5 h-5 px-1.5 inline-flex items-center justify-center rounded-full bg-coral-400 text-white text-[10px] font-medium border-2 border-white"
+                >
+                    {{ activeFiltersCount }}
+                </span>
+            </button>
+        </div>
 
         <!-- Layout desktop : panel gauche | carte -->
         <div class="flex h-[calc(100vh-56px)]">
@@ -610,17 +634,6 @@ const activeFiltersCount = computed(() => {
 
             <!-- Filtres scrollables -->
             <div class="flex-1 overflow-y-auto px-4 py-4 space-y-5">
-
-                <!-- Search by name -->
-                <div>
-                    <label class="block text-xs text-warm-500 mb-1.5">Nom du truck</label>
-                    <input
-                        v-model="searchQuery"
-                        type="text"
-                        placeholder="Rechercher un truck…"
-                        class="w-full text-sm rounded-md border border-warm-200 bg-warm-50 px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none focus:border-coral-400"
-                    />
-                </div>
 
                 <!-- City search -->
                 <div>
