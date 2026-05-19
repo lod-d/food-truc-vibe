@@ -467,24 +467,61 @@ const activeFiltersCount = computed(() => {
                 <!-- Invite état vide — overlay centré sur la carte -->
                 <div
                     v-if="!hasLocation"
-                    class="absolute inset-0 flex items-center justify-center z-500 pointer-events-none"
+                    class="absolute inset-0 flex items-center justify-center z-500 pointer-events-none px-4"
                 >
-                    <div class="bg-white rounded-2xl shadow-xl border border-warm-200 px-7 py-6 text-center pointer-events-auto max-w-xs">
-                        <p class="text-sm font-medium text-warm-900 mb-1">Où cherchez-vous ?</p>
-                        <p class="text-xs text-warm-500 mb-4">
-                            <span class="hidden md:inline">Entrez une ville dans le panneau<br>ou activez la localisation</span>
-                            <span class="md:hidden">Utilisez la barre de recherche en haut<br>ou activez la localisation</span>
-                        </p>
+                    <div class="bg-white rounded-2xl shadow-xl border border-warm-200 px-6 py-6 pointer-events-auto w-full max-w-sm">
+                        <p class="text-base font-medium text-warm-900 mb-1 text-center">Où cherchez-vous ?</p>
+                        <p class="text-xs text-warm-500 mb-5 text-center">Choisissez une option</p>
+
+                        <!-- Option 1 : recherche de ville -->
+                        <div class="relative mb-3">
+                            <div class="flex items-center bg-warm-50 rounded-md border border-warm-200 focus-within:border-coral-400 px-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warm-500 shrink-0">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+                                </svg>
+                                <input
+                                    v-model="cityQuery"
+                                    type="text"
+                                    placeholder="Ville ou code postal…"
+                                    class="flex-1 bg-transparent text-sm px-3 py-3 text-warm-900 placeholder:text-warm-500 focus:outline-none min-w-0"
+                                />
+                            </div>
+                            <div
+                                v-if="showCityDropdown"
+                                class="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-warm-200 rounded-lg shadow-lg overflow-hidden max-h-60 overflow-y-auto"
+                            >
+                                <button
+                                    v-for="r in cityResults"
+                                    :key="r.place_id"
+                                    class="w-full text-left px-3 py-3 text-sm text-warm-900 hover:bg-warm-50 border-b border-warm-100 last:border-0"
+                                    @click="onCitySelect(r)"
+                                >
+                                    {{ r.address?.city || r.address?.town || r.address?.village || r.address?.county }}
+                                    <span class="text-warm-400 ml-1">{{ r.address?.state }}</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Séparateur -->
+                        <div class="flex items-center gap-3 my-4">
+                            <div class="flex-1 h-px bg-warm-200" />
+                            <span class="text-xs text-warm-500 uppercase tracking-wider">ou</span>
+                            <div class="flex-1 h-px bg-warm-200" />
+                        </div>
+
+                        <!-- Option 2 : géolocalisation -->
                         <button
-                            class="inline-flex items-center gap-1.5 bg-coral-400 hover:bg-coral-600 text-white text-sm rounded-full px-5 py-3 transition-colors disabled:opacity-50"
+                            class="w-full inline-flex items-center justify-center gap-2 bg-coral-400 hover:bg-coral-600 text-white text-sm font-medium rounded-md px-5 py-3 transition-colors disabled:opacity-50"
                             :disabled="locating"
                             @click="onLocateMe"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
                             </svg>
-                            {{ locating ? 'Localisation…' : 'Me localiser' }}
+                            {{ locating ? 'Localisation…' : 'Me localiser (25 km autour)' }}
                         </button>
+
+                        <p v-if="locateError" class="text-xs text-red-500 mt-3 text-center">{{ locateError }}</p>
                     </div>
                 </div>
 
