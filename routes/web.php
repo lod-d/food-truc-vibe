@@ -27,7 +27,12 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('home')->with('success', 'Email vérifié avec succès !');
     })->middleware('signed')->name('verification.verify');
     Route::post('/email/verification-notification', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
+        try {
+            $request->user()->sendEmailVerificationNotification();
+        } catch (\Exception $e) {
+            \Log::error('Mail verification failed: ' . $e->getMessage());
+            return back()->withErrors(['email' => 'Erreur lors de l\'envoi : ' . $e->getMessage()]);
+        }
         return back()->with('success', 'Lien de vérification renvoyé.');
     })->middleware('throttle:6,1')->name('verification.send');
 });

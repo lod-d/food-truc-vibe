@@ -137,7 +137,11 @@ class TruckController extends Controller
         }
 
         if ($truck->email) {
-            Mail::to($truck->email)->send(new TruckRegisteredMail($truck));
+            try {
+                Mail::to($truck->email)->send(new TruckRegisteredMail($truck));
+            } catch (\Exception $e) {
+                \Log::error('TruckRegisteredMail failed: ' . $e->getMessage());
+            }
         }
 
         return redirect()->route('home')->with('success', "Votre truck \"{$truck->name}\" a bien été enregistré !");
