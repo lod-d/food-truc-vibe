@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([CuisineSeeder::class]);
 
         if (app()->environment('local')) {
-            $this->call([UserSeeder::class]);
+            $this->call([UserSeeder::class, FoodTruckSeeder::class]);
         }
     }
 }
