@@ -48,6 +48,7 @@ COPY --from=frontend /app/public/build public/build
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY docker/php-uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     && mkdir -p storage/logs storage/framework/{cache,sessions,views} \

@@ -50,8 +50,13 @@ const form = useForm({
     is_recurring: props.truck.is_recurring,
 });
 
+// PUT/PATCH/DELETE ne supportent pas multipart/form-data — on POST avec _method spoofing
+// pour que l'upload de photo soit correctement transmis.
 const submit = () => {
-    form.put(`/mon-truck/${props.truck.id}`, { forceFormData: true });
+    form.transform((data) => ({ ...data, _method: 'put' })).post(
+        `/mon-truck/${props.truck.id}`,
+        { forceFormData: true },
+    );
 };
 </script>
 
