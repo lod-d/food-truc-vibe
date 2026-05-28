@@ -10,8 +10,12 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([CuisineSeeder::class]);
 
-        if (app()->environment('local')) {
+        if (app()->environment(['local', 'demo'])) {
             $this->call([UserSeeder::class, FoodTruckSeeder::class]);
+        }
+
+        if (app()->environment('demo')) {
+            $this->call([DemoSeeder::class]);
         }
     }
 }

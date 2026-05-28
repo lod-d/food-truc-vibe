@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { Link, useForm } from '@inertiajs/vue3';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
 import AppButton from '../../Components/ui/AppButton.vue';
 import AppLayout from '../../Layouts/AppLayout.vue';
+
+const page = usePage<{ isDemo?: boolean }>();
 
 const form = useForm({
     email: '',
     password: '',
     remember: false,
 });
+
+const fillDemo = () => {
+    form.email = 'demo@truckmap.fr';
+    form.password = 'demo';
+};
 
 const submit = () => form.post('/connexion');
 </script>
@@ -23,6 +30,25 @@ const submit = () => form.post('/connexion');
                 <h1 class="mb-6 text-xl font-medium text-warm-900">
                     Connexion
                 </h1>
+
+                <div
+                    v-if="page.props.isDemo"
+                    class="mb-5 rounded-md border border-coral-400 bg-coral-50 p-3 text-xs text-warm-900"
+                >
+                    <p class="mb-2">
+                        <strong class="font-medium">Compte de démo :</strong>
+                        <code class="rounded bg-white px-1">demo@truckmap.fr</code>
+                        /
+                        <code class="rounded bg-white px-1">demo</code>
+                    </p>
+                    <button
+                        type="button"
+                        class="text-coral-400 underline hover:text-coral-600"
+                        @click="fillDemo"
+                    >
+                        Pré-remplir le formulaire
+                    </button>
+                </div>
 
                 <form class="space-y-4" @submit.prevent="submit">
                     <div>

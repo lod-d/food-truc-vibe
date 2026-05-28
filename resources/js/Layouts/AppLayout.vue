@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
+import DemoBanner from '../Components/DemoBanner.vue';
 
 const page = usePage<{
     auth: { user: { id: string; name: string } | null };
+    isDemo?: boolean;
 }>();
 
 const logout = () => router.post('/deconnexion');
@@ -69,8 +71,10 @@ const logout = () => router.post('/deconnexion');
             </div>
         </header>
 
+        <DemoBanner v-if="page.props.isDemo" />
+
         <!-- Content (offset for fixed navbar) -->
-        <main class="pt-14">
+        <main :class="page.props.isDemo ? 'pt-22' : 'pt-14'">
             <slot />
         </main>
     </div>

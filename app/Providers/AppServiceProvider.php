@@ -42,6 +42,7 @@ class AppServiceProvider extends ServiceProvider
                     'name' => auth()->user()->name,
                 ] : null,
             ],
+            'isDemo' => fn () => app()->environment('demo'),
         ]);
     }
 
