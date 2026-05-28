@@ -52,6 +52,7 @@ class TruckController extends Controller
                 }
             },
         ])
+            ->whereHas('locations.schedules', fn ($s) => $s->openToday($date))
             ->when($request->filled('cuisine'), fn ($q) => $q->whereHas('cuisine', fn ($c) => $c->where('slug', $request->cuisine))
             )
             ->when($request->boolean('open_now'), fn ($q) => $q->whereHas('locations.schedules', fn ($s) => $s->openNow())

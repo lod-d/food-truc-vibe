@@ -150,28 +150,19 @@ const onCitySelect = (result: any) => {
     cityQuery.value = '';
     cityResults.value = [];
     showCityDropdown.value = false;
-    filters.value.lat = parseFloat(result.lat);
-    filters.value.lng = parseFloat(result.lon);
-    filters.value.bounds = null;
+    hasLocation.value = true;
     mapViewRef.value?.flyTo(
-        filters.value.lat,
-        filters.value.lng,
+        parseFloat(result.lat),
+        parseFloat(result.lon),
         zoomForRadius[filters.value.radius] ?? 11,
     );
 };
 
 const clearCityFilter = () => {
     selectedCityName.value = null;
-    filters.value.lat = null;
-    filters.value.lng = null;
-    filters.value.radius = 25;
 };
 
 const onBoundsChanged = (bounds: any) => {
-    if (filters.value.lat) {
-        return;
-    }
-
     filters.value.bounds = bounds;
 };
 
@@ -214,10 +205,8 @@ const onLocateMe = () => {
                 accuracy: coords.accuracy,
             };
 
-            filters.value.lat = coords.latitude;
-            filters.value.lng = coords.longitude;
-            filters.value.bounds = null;
             selectedCityName.value = null;
+            hasLocation.value = true;
 
             mapViewRef.value?.flyTo(coords.latitude, coords.longitude, 13);
             mapViewRef.value?.showUserLocation(
@@ -251,8 +240,6 @@ const onRecenter = () => {
 const onForgetLocation = () => {
     located.value = false;
     userCoords.value = null;
-    filters.value.lat = null;
-    filters.value.lng = null;
     mapViewRef.value?.removeUserLocation();
 };
 
