@@ -145,11 +145,7 @@ export function useTrucks(initialTrucks: any[] = []) {
     watch(
         filters,
         (newVal) => {
-            if (!hasLocation.value) {
-                if (!newVal.bounds && newVal.lat == null) {
-                    return;
-                }
-
+            if (!hasLocation.value && (newVal.bounds || newVal.lat != null)) {
                 hasLocation.value = true;
             }
 
@@ -157,6 +153,8 @@ export function useTrucks(initialTrucks: any[] = []) {
         },
         { deep: true },
     );
+
+    fetch();
 
     return {
         trucks,

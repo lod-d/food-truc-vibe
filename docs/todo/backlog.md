@@ -7,7 +7,8 @@
 
 ## 🔴 High Priority
 
-*(vide — tous les items critiques sont livrés)*
+- [ ] **Audit Home — Sprint B (mobile)** : `dvh`, `invalidateSize`, scroll-lock, z-index, tap targets ≥44px — voir `docs/audits/audit-home-2026-05-28.md`
+- [ ] **Audit Home — Sprint C (UX polish)** : empty state, sessionStorage, safe-area iOS — voir audit
 
 ## 🟡 Medium Priority
 
