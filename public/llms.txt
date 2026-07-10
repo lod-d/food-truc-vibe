@@ -4,6 +4,17 @@
 > API REST publique — aucune clé requise.
 > Site : https://foodtruck.deladev.fr
 
+## Réponses rapides
+
+Q : Y a-t-il des food trucks ouverts en ce moment ?
+R : GET https://foodtruck.deladev.fr/api/trucks?open_now=1
+
+Q : Quels food trucks sont ouverts aujourd'hui près de Paris ?
+R : GET https://foodtruck.deladev.fr/api/trucks?lat=48.8566&lng=2.3522&radius=25
+
+Q : Y a-t-il des burgers autour de Lyon ?
+R : GET https://foodtruck.deladev.fr/api/trucks?cuisine=burger&lat=45.7640&lng=4.8357&radius=25
+
 ## API REST
 
 Base URL : https://foodtruck.deladev.fr/api
