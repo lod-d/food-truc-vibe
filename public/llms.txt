@@ -95,4 +95,4 @@ Tools MCP disponibles :
 ## À propos
 
 TruckMap est un projet open source.
-Contact : loic.deladev@gmail.com
+Repo : https://github.com/lod-d/food-truc-vibe

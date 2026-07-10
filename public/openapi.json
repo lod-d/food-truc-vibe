@@ -5,7 +5,7 @@
     "description": "API publique de TruckMap — annuaire de food trucks en France avec localisation et horaires en temps réel. Aucune authentification requise pour la lecture.",
     "version": "1.0.0",
     "contact": {
-      "email": "loic.deladev@gmail.com"
+      "url": "https://github.com/lod-d/food-truc-vibe"
     }
   },
   "servers": [
