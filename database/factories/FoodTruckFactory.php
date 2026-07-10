@@ -28,16 +28,16 @@ class FoodTruckFactory extends Factory
 
     public function definition(): array
     {
-        $name = \fake()->randomElement(self::NAMES).' '.\fake()->randomLetter().\fake()->randomNumber(2);
+        $name = $this->faker->randomElement(self::NAMES).' '.$this->faker->randomLetter().$this->faker->randomNumber(2);
 
         return [
             'user_id' => User::factory(),
             'cuisine_id' => Cuisine::inRandomOrder()->value('id'),
             'name' => $name,
-            'description' => \fake()->sentence(8),
-            'phone' => \fake()->phoneNumber(),
-            'email' => \fake()->safeEmail(),
-            'instagram_url' => \fake()->boolean(40)
+            'description' => $this->faker->sentence(8),
+            'phone' => $this->faker->phoneNumber(),
+            'email' => $this->faker->safeEmail(),
+            'instagram_url' => $this->faker->boolean(40)
                 ? 'https://instagram.com/'.Str::slug($name)
                 : null,
             'photo_url' => null,
