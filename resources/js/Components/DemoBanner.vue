@@ -1,20 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { useDemoBanner } from '../Composables/useDemoBanner';
 
-const DISMISS_KEY = 'demo-banner-dismissed';
-
-const dismissed = ref(
-    typeof sessionStorage !== 'undefined' &&
-        sessionStorage.getItem(DISMISS_KEY) === '1',
-);
-
-const dismiss = () => {
-    dismissed.value = true;
-
-    if (typeof sessionStorage !== 'undefined') {
-        sessionStorage.setItem(DISMISS_KEY, '1');
-    }
-};
+const { dismissed, dismiss } = useDemoBanner();
 </script>
 
 <template>

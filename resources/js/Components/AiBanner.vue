@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import { useDemoBanner } from '../Composables/useDemoBanner';
 
 const DISMISS_KEY = 'ai-banner-dismissed';
 
 const page = usePage<{ isDemo?: boolean }>();
+const { dismissed: demoDismissed } = useDemoBanner();
 
 const dismissed = ref(
     typeof localStorage !== 'undefined' &&
@@ -18,15 +20,21 @@ const dismiss = () => {
     }
 };
 
-// Se place sous le DemoBanner en mode démo, sinon directement sous la navbar.
-const topClass = computed(() => (page.props.isDemo ? 'top-22' : 'top-14'));
+const demoBannerVisible = computed(
+    () =>
+        page.props.isDemo &&
+        page.component !== 'Home' &&
+        !demoDismissed.value,
+);
+
+const topClass = computed(() => (demoBannerVisible.value ? 'top-22' : 'top-14'));
 </script>
 
 <template>
     <div
         v-if="!dismissed"
         :class="[
-            'fixed right-0 left-0 z-40 flex items-center justify-between gap-3 border-b border-warm-200 bg-warm-50 px-4 py-2 text-sm text-warm-500',
+            'fixed right-0 left-0 z-50 flex items-center justify-between gap-3 border-b border-warm-200 bg-warm-50 px-4 py-2 text-sm text-warm-500',
             topClass,
         ]"
     >

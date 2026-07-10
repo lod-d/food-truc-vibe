@@ -73,11 +73,11 @@ const logout = () => router.post('/deconnexion');
         </header>
 
         <DemoBanner v-if="page.props.isDemo && page.component !== 'Home'" />
-        <AiBanner />
+        <AiBanner v-if="page.component !== 'Home'" />
 
         <!-- Content (offset for fixed navbar + bandeaux éventuels) -->
         <main
-            :class="page.props.isDemo && page.component !== 'Home' ? 'pt-32' : 'pt-22'"
+            :class="page.props.isDemo && page.component !== 'Home' ? 'pt-32' : (page.component !== 'Home' ? 'pt-22' : 'pt-14')"
         >
             <slot />
         </main>
