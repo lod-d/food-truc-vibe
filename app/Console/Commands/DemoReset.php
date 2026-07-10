@@ -22,6 +22,7 @@ class DemoReset extends Command
         $this->info('Reset démo : migrate:fresh --seed --force …');
 
         Artisan::call('migrate:fresh', ['--seed' => true, '--force' => true], $this->output);
+        Artisan::call('cache:clear', [], $this->output);
 
         $this->info('Reset démo terminé.');
 
