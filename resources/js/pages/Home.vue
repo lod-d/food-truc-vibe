@@ -364,7 +364,7 @@ const activeFiltersCount = computed(() => {
         </div>
 
         <!-- Layout desktop : panel gauche | carte -->
-        <div class="flex h-[calc(100vh-56px)]">
+        <div class="flex h-[calc(100vh-88px)]">
             <!-- Panel gauche (desktop) -->
             <div
                 class="hidden w-80 shrink-0 flex-col overflow-hidden border-r border-warm-200 bg-white md:flex lg:w-96"
