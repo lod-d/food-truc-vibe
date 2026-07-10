@@ -29,15 +29,50 @@
     </head>
     <body class="font-sans antialiased">
         <noscript>
-            <div style="font-family:sans-serif;max-width:600px;margin:2rem auto;padding:1rem">
-                <h1>TruckMap</h1>
-                <p>Annuaire de food trucks en France avec localisation et horaires en temps réel.</p>
-                <p>Ce site nécessite JavaScript. Pour accéder aux données sans JS :</p>
-                <ul>
-                    <li><a href="/api/trucks?open_now=1">Trucks ouverts maintenant (JSON)</a></li>
-                    <li><a href="/llms.txt">Documentation API pour les IAs</a></li>
-                    <li><a href="/openapi.json">Spécification OpenAPI</a></li>
-                </ul>
+            <style>
+                .ns{font-family:system-ui,sans-serif;background:#F1EFE8;min-height:100vh;margin:0;padding:2rem 1rem;color:#2C2C2A;box-sizing:border-box}
+                .ns-inner{max-width:900px;margin:0 auto}
+                .ns-logo{font-size:1.4rem;font-weight:500;color:#D85A30;margin:0 0 .25rem}
+                .ns-tagline{color:#6b6b68;margin:0 0 2rem;font-size:.95rem}
+                .ns-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+                .ns-card{background:#fff;border:1px solid #D3D1C7;border-radius:8px;padding:1.5rem}
+                .ns-card h2{font-size:.95rem;font-weight:500;margin:0 0 .6rem;color:#2C2C2A}
+                .ns-card p{color:#6b6b68;font-size:.875rem;margin:0 0 1rem;line-height:1.55}
+                .ns-btn{display:inline-block;background:#D85A30;color:#fff;text-decoration:none;padding:.35rem .85rem;border-radius:6px;font-size:.82rem;margin:0 .3rem .3rem 0}
+                .ns-ex{margin:.85rem 0}
+                .ns-ex b{display:block;font-size:.8rem;font-weight:500;margin-bottom:.3rem}
+                .ns-code{background:#2C2C2A;color:#F1EFE8;padding:.45rem .75rem;border-radius:4px;font-family:monospace;font-size:.76rem;word-break:break-all;margin:0;white-space:pre-wrap}
+                @media(max-width:600px){.ns-grid{grid-template-columns:1fr}}
+            </style>
+            <div class="ns">
+                <div class="ns-inner">
+                    <h1 class="ns-logo">🍔 TruckMap</h1>
+                    <p class="ns-tagline">Annuaire de food trucks en France &mdash; disponibilit&eacute; en temps r&eacute;el</p>
+                    <div class="ns-grid">
+                        <div class="ns-card">
+                            <h2>Ce site n&eacute;cessite JavaScript</h2>
+                            <p>La carte interactive fonctionne avec JavaScript activ&eacute;. Sans JS, l&rsquo;API REST est disponible directement et retourne les donn&eacute;es en JSON.</p>
+                            <a class="ns-btn" href="/api/trucks?open_now=1">Trucks ouverts maintenant</a>
+                            <a class="ns-btn" href="/llms.txt">Documentation IA (llms.txt)</a>
+                            <a class="ns-btn" href="/openapi.json">Sp&eacute;cification OpenAPI</a>
+                        </div>
+                        <div class="ns-card">
+                            <h2>Exemples d&rsquo;appels API</h2>
+                            <div class="ns-ex">
+                                <b>Trucks ouverts en ce moment :</b>
+                                <pre class="ns-code">GET /api/trucks?open_now=1</pre>
+                            </div>
+                            <div class="ns-ex">
+                                <b>Food trucks en Bretagne :</b>
+                                <pre class="ns-code">GET /api/trucks?lat=48.1173&amp;lng=-1.6778&amp;radius=100</pre>
+                            </div>
+                            <div class="ns-ex">
+                                <b>Burgers &agrave; Paris :</b>
+                                <pre class="ns-code">GET /api/trucks?cuisine=burger&amp;lat=48.8566&amp;lng=2.3522&amp;radius=25</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </noscript>
         <x-inertia::app />
