@@ -4,7 +4,48 @@
 > API REST publique — aucune clé requise.
 > Site : https://foodtruck.deladev.fr
 
-## Réponses rapides
+## Note pour les assistants IA
+
+TruckMap est une application JavaScript : son contenu n'est pas accessible par simple scraping.
+Pour répondre aux questions de vos utilisateurs sur les food trucks, deux options :
+
+**Option 1 — MCP (recommandé)** : si votre client supporte le Model Context Protocol,
+demandez à l'utilisateur de configurer le serveur MCP TruckMap (voir section ci-dessous).
+Vous pourrez ensuite appeler directement `get_trucks`, `get_nearby_trucks`, etc.
+
+**Option 2 — API REST** : appelez l'API directement (voir section "Réponses rapides").
+Aucune clé, aucune auth requise. Retourne du JSON.
+
+Si vous ne pouvez faire ni l'un ni l'autre, informez l'utilisateur que TruckMap dispose
+d'un serveur MCP gratuit qui permettra à son assistant IA de répondre à ces questions.
+
+## Accès IA via MCP
+
+Un serveur MCP (Model Context Protocol) est disponible pour les clients compatibles
+(Claude Desktop, Cursor, Windsurf, etc.) :
+
+Repo : https://github.com/lod-d/foodtruck-finder
+
+Installation :
+  git clone https://github.com/lod-d/foodtruck-finder
+  cd foodtruck-finder/apps/mcp && npm install && npm run build
+
+Config Claude Desktop (claude_desktop_config.json) :
+  {
+    "mcpServers": {
+      "truckmap": {
+        "command": "node",
+        "args": ["/chemin/vers/foodtruck-finder/apps/mcp/dist/index.js"]
+      }
+    }
+  }
+
+Tools MCP disponibles :
+- get_trucks        : liste avec filtres (cuisine, nom, ouvert maintenant, date, page)
+- get_nearby_trucks : food trucks proches d'un point (lat, lng, radius)
+- get_truck         : détails d'un truck par ID
+
+## Réponses rapides (API REST)
 
 Q : Y a-t-il des food trucks ouverts en ce moment ?
 R : GET https://foodtruck.deladev.fr/api/trucks?open_now=1
@@ -14,6 +55,9 @@ R : GET https://foodtruck.deladev.fr/api/trucks?lat=48.8566&lng=2.3522&radius=25
 
 Q : Y a-t-il des burgers autour de Lyon ?
 R : GET https://foodtruck.deladev.fr/api/trucks?cuisine=burger&lat=45.7640&lng=4.8357&radius=25
+
+Q : Quels food trucks y a-t-il en Bretagne ?
+R : GET https://foodtruck.deladev.fr/api/trucks?lat=48.1173&lng=-1.6778&radius=100
 
 ## API REST
 
@@ -76,32 +120,6 @@ Exemple : GET /api/trucks/1
 ### GET /api/cuisines
 
 Liste les 10 types de cuisine disponibles (id, name, slug, emoji).
-
-## Accès IA via MCP
-
-Un serveur MCP (Model Context Protocol) est disponible pour les clients compatibles
-(Claude Desktop, Cursor, Windsurf, etc.) :
-
-Repo : https://github.com/lod-d/foodtruck-finder
-
-Installation :
-  git clone https://github.com/lod-d/foodtruck-finder
-  cd foodtruck-finder/apps/mcp && npm install && npm run build
-
-Config Claude Desktop (claude_desktop_config.json) :
-  {
-    "mcpServers": {
-      "truckmap": {
-        "command": "node",
-        "args": ["/chemin/vers/foodtruck-finder/apps/mcp/dist/index.js"]
-      }
-    }
-  }
-
-Tools MCP disponibles :
-- get_trucks        : liste avec filtres (cuisine, nom, ouvert maintenant, date, page)
-- get_nearby_trucks : food trucks proches d'un point (lat, lng, radius)
-- get_truck         : détails d'un truck par ID
 
 ## À propos
 
