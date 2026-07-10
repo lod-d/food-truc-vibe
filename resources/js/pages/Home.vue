@@ -1352,5 +1352,22 @@ const activeFiltersCount = computed(() => {
                 </button>
             </footer>
         </div>
+
+        <!-- Footer IA — discret, coin bas droit de la carte -->
+        <div class="pointer-events-none fixed right-3 bottom-3 z-40 flex items-center gap-2 text-xs text-warm-500">
+            <a
+                href="/llms.txt"
+                target="_blank"
+                rel="noopener"
+                class="pointer-events-auto transition-colors hover:text-warm-900"
+            >🤖 Accessible aux IA</a>
+            <span class="text-warm-200">·</span>
+            <a
+                href="/openapi.json"
+                target="_blank"
+                rel="noopener"
+                class="pointer-events-auto transition-colors hover:text-warm-900"
+            >API</a>
+        </div>
     </AppLayout>
 </template>
