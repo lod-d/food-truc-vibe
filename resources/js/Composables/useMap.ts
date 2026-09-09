@@ -58,12 +58,15 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
             zoomControl: false,
         });
 
+        // Esri World Light Gray : fond clair sans clé API.
+        // Tuiles natives jusqu'au zoom 16 seulement, Leaflet agrandit au-delà.
         L.tileLayer(
-            'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
             {
                 attribution:
-                    '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+                    'Tiles © <a href="https://www.esri.com/">Esri</a> — Esri, DeLorme, NAVTEQ',
                 maxZoom: 19,
+                maxNativeZoom: 16,
             },
         ).addTo(map);
 

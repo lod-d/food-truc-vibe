@@ -65,10 +65,11 @@ onMounted(async () => {
     });
 
     L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
         {
-            attribution: '© OpenStreetMap © CARTO',
+            attribution: 'Tiles © Esri',
             maxZoom: 19,
+            maxNativeZoom: 16,
         },
     ).addTo(miniMap);
 
