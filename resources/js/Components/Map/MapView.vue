@@ -22,8 +22,8 @@ const mapContainer = ref<HTMLElement | null>(null);
 const { init, setTrucks, flyTo, showUserLocation, removeUserLocation } =
     useMap(mapContainer);
 
-onMounted(() => {
-    init((bounds: any) => emit('bounds-changed', bounds));
+onMounted(async () => {
+    await init((bounds: any) => emit('bounds-changed', bounds));
     setTrucks(props.trucks, (truck: any, loc: any) =>
         emit('truck-selected', truck, loc),
     );
