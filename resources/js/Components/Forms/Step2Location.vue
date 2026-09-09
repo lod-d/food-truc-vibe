@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /* eslint-disable vue/no-mutating-props -- Inertia useForm est conçu pour être muté depuis les composants enfants */
-import L from 'leaflet';
+import type L_NS from 'leaflet';
 import { onMounted, ref } from 'vue';
 import { useGeocoding } from '../../Composables/useGeocoding';
 
@@ -11,8 +11,9 @@ const searchQuery = ref('');
 const suggestions = ref<any[]>([]);
 const showSuggestions = ref(false);
 
-let miniMap: L.Map | null = null;
-let marker: L.Marker | null = null;
+let miniMap: L_NS.Map | null = null;
+let marker: L_NS.Marker | null = null;
+let _L: typeof L_NS | null = null;
 const { search } = useGeocoding();
 
 const placeMarker = (
@@ -21,6 +22,12 @@ const placeMarker = (
     address?: string,
     city?: string,
 ) => {
+    if (!_L || !miniMap) {
+        return;
+    }
+
+    const L = _L;
+
     props.form.latitude = lat;
     props.form.longitude = lng;
 
@@ -50,7 +57,10 @@ const placeMarker = (
     miniMap?.setView(latlng, 15);
 };
 
-onMounted(() => {
+onMounted(async () => {
+    const { default: L } = await import('leaflet');
+    _L = L;
+
     miniMap = L.map(mapContainer.value!, {
         center: [46.603354, 1.888334],
         zoom: 5,
@@ -58,10 +68,11 @@ onMounted(() => {
     });
 
     L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
         {
-            attribution: '© OpenStreetMap © CARTO',
+            attribution: 'Tiles © Esri',
             maxZoom: 19,
+            maxNativeZoom: 16,
         },
     ).addTo(miniMap);
 

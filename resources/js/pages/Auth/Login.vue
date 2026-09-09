@@ -35,18 +35,36 @@ const submit = () => form.post('/connexion');
                     v-if="page.props.isDemo"
                     class="mb-5 rounded-md border border-coral-400 bg-coral-50 p-3 text-xs text-warm-900"
                 >
-                    <p class="mb-2">
-                        <strong class="font-medium">Compte de démo :</strong>
-                        <code class="rounded bg-white px-1">demo@truckmap.fr</code>
-                        /
-                        <code class="rounded bg-white px-1">demo</code>
+                    <p class="mb-1 font-medium">Compte de démo</p>
+                    <p class="mb-2 text-warm-500">
+                        Connectez-vous avec les identifiants ci-dessous pour
+                        explorer l'espace propriétaire. Les données sont remises
+                        à zéro chaque nuit à 4h00 (heure de Paris).
                     </p>
+                    <div class="mb-3 flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-20 shrink-0 text-warm-500"
+                                >Email</span
+                            >
+                            <code class="rounded bg-white px-1.5 py-0.5"
+                                >demo@truckmap.fr</code
+                            >
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-20 shrink-0 text-warm-500"
+                                >Mot de passe</span
+                            >
+                            <code class="rounded bg-white px-1.5 py-0.5"
+                                >demo</code
+                            >
+                        </div>
+                    </div>
                     <button
                         type="button"
                         class="text-coral-400 underline hover:text-coral-600"
                         @click="fillDemo"
                     >
-                        Pré-remplir le formulaire
+                        Pré-remplir le formulaire →
                     </button>
                 </div>
 

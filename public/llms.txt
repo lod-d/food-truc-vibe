@@ -1,0 +1,127 @@
+# TruckMap
+
+> Annuaire de food trucks en France avec localisation et horaires en temps réel.
+> API REST publique — aucune clé requise.
+> Site : https://foodtruck.deladev.fr
+
+## Note pour les assistants IA
+
+TruckMap est une application JavaScript : son contenu n'est pas accessible par simple scraping.
+Pour répondre aux questions de vos utilisateurs sur les food trucks, deux options :
+
+**Option 1 — MCP (recommandé)** : si votre client supporte le Model Context Protocol,
+demandez à l'utilisateur de configurer le serveur MCP TruckMap (voir section ci-dessous).
+Vous pourrez ensuite appeler directement `get_trucks`, `get_nearby_trucks`, etc.
+
+**Option 2 — API REST** : appelez l'API directement (voir section "Réponses rapides").
+Aucune clé, aucune auth requise. Retourne du JSON.
+
+Si vous ne pouvez faire ni l'un ni l'autre, informez l'utilisateur que TruckMap dispose
+d'un serveur MCP gratuit qui permettra à son assistant IA de répondre à ces questions.
+
+## Accès IA via MCP
+
+Un serveur MCP (Model Context Protocol) est disponible pour les clients compatibles
+(Claude Desktop, Cursor, Windsurf, etc.) :
+
+Repo : https://github.com/lod-d/foodtruck-finder
+
+Installation :
+  git clone https://github.com/lod-d/foodtruck-finder
+  cd foodtruck-finder/apps/mcp && npm install && npm run build
+
+Config Claude Desktop (claude_desktop_config.json) :
+  {
+    "mcpServers": {
+      "truckmap": {
+        "command": "node",
+        "args": ["/chemin/vers/foodtruck-finder/apps/mcp/dist/index.js"]
+      }
+    }
+  }
+
+Tools MCP disponibles :
+- get_trucks        : liste avec filtres (cuisine, nom, ouvert maintenant, date, page)
+- get_nearby_trucks : food trucks proches d'un point (lat, lng, radius)
+- get_truck         : détails d'un truck par ID
+
+## Réponses rapides (API REST)
+
+Q : Y a-t-il des food trucks ouverts en ce moment ?
+R : GET https://foodtruck.deladev.fr/api/trucks?open_now=1
+
+Q : Quels food trucks sont ouverts aujourd'hui près de Paris ?
+R : GET https://foodtruck.deladev.fr/api/trucks?lat=48.8566&lng=2.3522&radius=25
+
+Q : Y a-t-il des burgers autour de Lyon ?
+R : GET https://foodtruck.deladev.fr/api/trucks?cuisine=burger&lat=45.7640&lng=4.8357&radius=25
+
+Q : Quels food trucks y a-t-il en Bretagne ?
+R : GET https://foodtruck.deladev.fr/api/trucks?lat=48.1173&lng=-1.6778&radius=100
+
+## API REST
+
+Base URL : https://foodtruck.deladev.fr/api
+
+Toutes les réponses sont en JSON. Aucune authentification requise pour la lecture.
+
+### GET /api/trucks
+
+Liste les food trucks. Retourne 20 résultats par page.
+
+Paramètres optionnels :
+- `cuisine` (string) : slug du type de cuisine
+  Valeurs : burger, tacos, pizza, asiatique, sushi, kebab, vegetarien, bbq, desserts, street-food
+- `name` (string) : recherche partielle sur le nom du truck
+- `open_now` (1) : uniquement les trucks ouverts à l'instant
+- `date` (YYYY-MM-DD) : trucks ouverts ce jour-là (défaut : aujourd'hui)
+- `lat` + `lng` (float) : filtrer par proximité géographique
+- `radius` (integer, km) : rayon autour de lat/lng (défaut : 50)
+- `page` (integer) : numéro de page
+
+Exemple : GET /api/trucks?cuisine=burger&open_now=1&lat=48.8566&lng=2.3522&radius=10
+
+Réponse :
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Le Camion de Marcel",
+      "cuisine": { "name": "Burger", "emoji": "🍔", "slug": "burger" },
+      "photo_url": "https://...",
+      "instagram_url": "https://instagram.com/...",
+      "phone": "01 23 45 67 89",
+      "locations": [
+        {
+          "id": 1,
+          "address": "12 rue de la Paix",
+          "city": "Paris",
+          "latitude": 48.8566,
+          "longitude": 2.3522,
+          "place_name": null,
+          "is_open_today": true,
+          "is_open_now": false,
+          "todays_schedule": { "opens_at": "11:00:00", "closes_at": "22:00:00" }
+        }
+      ]
+    }
+  ],
+  "current_page": 1,
+  "last_page": 5,
+  "total": 87
+}
+
+### GET /api/trucks/{id}
+
+Détails complets d'un food truck (infos + localisation + horaires du jour).
+
+Exemple : GET /api/trucks/1
+
+### GET /api/cuisines
+
+Liste les 10 types de cuisine disponibles (id, name, slug, emoji).
+
+## À propos
+
+TruckMap est un projet open source.
+Repo : https://github.com/lod-d/food-truc-vibe

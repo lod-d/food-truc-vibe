@@ -1,5 +1,7 @@
 # TruckMap — Architecture & Conventions
 
+**Dernière mise à jour :** 2026-07-11
+
 ---
 
 ## Conventions de nommage
@@ -250,6 +252,120 @@ SESSION_LIFETIME=120
 
 # Queue (optionnel V1 : sync)
 QUEUE_CONNECTION=sync
+```
+
+---
+
+## Authentification
+
+Système de session Laravel natif — **pas Breeze, pas Sanctum**.
+
+| Aspect | Détail |
+|---|---|
+| Connexion | `POST /connexion` → `AuthController@login` → session + redirect `/mon-truck` |
+| Inscription | `POST /inscription` → `AuthController@register` → auto-vérifié en `local`, mail en prod |
+| Déconnexion | `POST /deconnexion` → invalidate session + regenerate token |
+| Routes guest | `/connexion`, `/inscription` (redirigent si déjà connecté) |
+| Routes protégées | `/enregistrer`, `/mon-truck/*` (middleware `auth` + `verified`) |
+| Email verification | `MustVerifyEmail` sur `User`, event `Registered` en prod |
+
+---
+
+## Espace admin (TruckAdminController)
+
+- `index()` : trucks de l'utilisateur **+** trucks sans propriétaire (`user_id IS NULL`) — permet la revendication
+- `claim()` : assigne `user_id` à un truck non revendiqué
+- `edit()` / `update()` / `destroy()` : ownership vérifié via `abort_if($truck->user_id !== Auth::id(), 403)`
+- **Stratégie update** : delete toutes les locations + recréation complète (évite un diff complexe de schedules)
+
+---
+
+## Environnement de démo
+
+| Aspect | Détail |
+|---|---|
+| Activation | `APP_ENV=demo` dans `.env` |
+| Détection | `AppServiceProvider` partage `isDemo = app()->environment('demo')` |
+| Reset | `php artisan demo:reset` — `migrate:fresh --seed --force` + `cache:clear` |
+| Planification | Tous les jours à **04:00 (Europe/Paris)** via `routes/console.php` |
+| Identifiants | `demo@truckmap.fr` / `demo` |
+| UI | `DemoBanner` affiché sur toutes les pages sauf Home |
+| Rate limit login | 60 req/min en démo (throttle renforcé sur `POST /connexion`) |
+
+---
+
+## AppServiceProvider — données partagées
+
+```php
+Inertia::share([
+    'cuisines' => fn() => Cuisine::select('id','name','slug','emoji')->orderBy('name')->get(),
+    'flash'    => fn() => ['success' => session('success'), 'error' => session('error')],
+    'auth'     => fn() => ['user' => Auth::user()?->only('id', 'name')],
+    'isDemo'   => fn() => app()->environment('demo'),
+]);
+```
+
+Defaults configurés dans `boot()` :
+- `CarbonImmutable` comme classe de date → tous les type hints utilisent `CarbonInterface`
+- `URL::forceScheme('https')` en production
+- `Model::prohibitDestructiveCommands(true)` en production
+- Règles de mot de passe renforcées en production (`min:8, mixedCase, numbers, symbols, uncompromised`)
+
+---
+
+## Schéma de base de données
+
+```mermaid
+erDiagram
+    users {
+        uuid id PK
+        string name
+        string email
+        timestamp email_verified_at
+        string password
+    }
+    cuisines {
+        uuid id PK
+        string name
+        string slug
+        string emoji
+    }
+    food_trucks {
+        uuid id PK
+        uuid user_id FK
+        uuid cuisine_id FK
+        string name
+        string description
+        string phone
+        string email
+        string instagram_url
+        string photo_url
+    }
+    locations {
+        uuid id PK
+        uuid food_truck_id FK
+        string address
+        string city
+        string postal_code
+        decimal latitude
+        decimal longitude
+        string place_name
+    }
+    schedules {
+        uuid id PK
+        uuid location_id FK
+        tinyint day_of_week
+        time opens_at
+        time closes_at
+        date specific_date
+        boolean is_recurring
+        boolean is_cancelled
+    }
+
+    users ||--o{ food_trucks : owns
+    cuisines ||--o{ food_trucks : categorizes
+    food_trucks ||--o{ locations : has
+    locations ||--o{ schedules : has
 ```
 
 ---

@@ -15,14 +15,14 @@ class ScheduleFactory extends Factory
 
     public function definition(): array
     {
-        $opensHour = fake()->numberBetween(11, 12);
-        $closesHour = fake()->numberBetween(14, 22);
+        $opensHour = $this->faker->numberBetween(11, 12);
+        $closesHour = $this->faker->numberBetween(14, 22);
 
         return [
             'location_id' => Location::factory(),
-            'day_of_week' => fake()->numberBetween(0, 6),
-            'opens_at' => sprintf('%02d:00:00', $opensHour),
-            'closes_at' => sprintf('%02d:00:00', $closesHour),
+            'day_of_week' => $this->faker->numberBetween(0, 6),
+            'opens_at' => \sprintf('%02d:00:00', $opensHour),
+            'closes_at' => \sprintf('%02d:00:00', $closesHour),
             'specific_date' => null,
             'is_recurring' => true,
             'is_cancelled' => false,

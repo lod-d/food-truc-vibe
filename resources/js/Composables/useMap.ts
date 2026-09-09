@@ -1,20 +1,35 @@
-import L from 'leaflet';
+// L_NS est un import type-only : effacé au build, donc sans risque en SSR
+import type L_NS from 'leaflet';
 import { createApp, h, onUnmounted } from 'vue';
 import type { Ref } from 'vue';
-import 'leaflet.markercluster';
 import TruckPopup from '../Components/Map/TruckPopup.vue';
 import type { Bounds } from './useTrucks';
 
 type BoundsCallback = (bounds: Bounds | null) => void;
 type TruckClickCallback = (truck: any, location: any) => void;
 
+// Instance Leaflet chargée dynamiquement (Node.js n'a pas de window)
+let _L: typeof L_NS | null = null;
+
+async function loadLeaflet(): Promise<typeof L_NS> {
+    if (_L) {
+        return _L;
+    }
+
+    const { default: leaflet } = await import('leaflet');
+    _L = leaflet;
+    await import('leaflet.markercluster');
+
+    return _L;
+}
+
 export function useMap(containerRef: Ref<HTMLElement | null>) {
-    let map: L.Map | null = null;
-    let clusterGroup: L.MarkerClusterGroup | null = null;
+    let map: L_NS.Map | null = null;
+    let clusterGroup: L_NS.MarkerClusterGroup | null = null;
     let onTruckClickCallback: TruckClickCallback | null = null;
     let onBoundsChangeCallback: BoundsCallback | null = null;
-    let userMarker: L.Marker | null = null;
-    let userAccuracyCircle: L.Circle | null = null;
+    let userMarker: L_NS.Marker | null = null;
+    let userAccuracyCircle: L_NS.Circle | null = null;
     let skipMoveEndUntil = 0;
     const popupApps: ReturnType<typeof createApp>[] = [];
 
@@ -34,12 +49,16 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
         popupApps.length = 0;
     };
 
-    const init = (onBoundsChange: BoundsCallback | null = null): void => {
+    const init = async (
+        onBoundsChange: BoundsCallback | null = null,
+    ): Promise<void> => {
         onBoundsChangeCallback = onBoundsChange;
 
         if (!containerRef.value) {
             return;
         }
+
+        const L = await loadLeaflet();
 
         map = L.map(containerRef.value, {
             center: [46.603354, 1.888334],
@@ -47,12 +66,15 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
             zoomControl: false,
         });
 
+        // Esri World Light Gray : fond clair sans clé API.
+        // Tuiles natives jusqu'au zoom 16 seulement, Leaflet agrandit au-delà.
         L.tileLayer(
-            'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
             {
                 attribution:
-                    '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+                    'Tiles © <a href="https://www.esri.com/">Esri</a> — Esri, DeLorme, NAVTEQ',
                 maxZoom: 19,
+                maxNativeZoom: 16,
             },
         ).addTo(map);
 
@@ -103,16 +125,17 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
     };
 
     const setTrucks = (trucks: any[], onClickFn: TruckClickCallback): void => {
-        if (!clusterGroup) {
+        if (!clusterGroup || !_L) {
             return;
         }
 
-        onTruckClickCallback = onClickFn;
+        const L = _L;
 
+        onTruckClickCallback = onClickFn;
         unmountPopups();
         clusterGroup.clearLayers();
 
-        const markers: L.Marker[] = trucks.flatMap((truck) =>
+        const markers: L_NS.Marker[] = trucks.flatMap((truck) =>
             truck.locations.map((loc: any) => {
                 const icon = L.divIcon({
                     html: `<div class="truck-marker ${loc.is_open_now ? '' : 'closed'}"><span class="emoji">${truck.cuisine.emoji}</span></div>`,
@@ -153,9 +176,11 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
         lng: number,
         accuracy: number | null = null,
     ): void => {
-        if (!map) {
+        if (!map || !_L) {
             return;
         }
+
+        const L = _L;
 
         const icon = L.divIcon({
             html: '<div class="user-location-marker"></div>',
@@ -167,7 +192,7 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
         if (userMarker) {
             userMarker.setLatLng([lat, lng]);
         } else {
-            userMarker = L.marker([lat, lng], { icon }).addTo(map);
+            userMarker = L.marker([lat, lng], { icon }).addTo(map!);
         }
 
         if (accuracy && accuracy > 50) {
@@ -180,7 +205,7 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
                     fillColor: '#3B82F6',
                     fillOpacity: 0.08,
                     weight: 1,
-                }).addTo(map);
+                }).addTo(map!);
             }
         }
     };
@@ -197,7 +222,7 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
         }
     };
 
-    const getMap = (): L.Map | null => map;
+    const getMap = (): L_NS.Map | null => map;
 
     onUnmounted(() => {
         unmountPopups();

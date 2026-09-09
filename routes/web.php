@@ -13,9 +13,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Auth
 Route::middleware('guest')->group(function () {
     Route::get('/connexion', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/connexion', [AuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::post('/connexion', [AuthController::class, 'login'])->middleware(app()->environment('demo') ? 'throttle:60,1' : 'throttle:10,1');
     Route::get('/inscription', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/inscription', [AuthController::class, 'register'])->middleware('throttle:10,1');
+    Route::post('/inscription', [AuthController::class, 'register'])->middleware(app()->environment('demo') ? 'throttle:60,1' : 'throttle:10,1');
 });
 Route::post('/deconnexion', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 

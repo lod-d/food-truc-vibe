@@ -48,16 +48,16 @@ class LocationFactory extends Factory
 
     public function definition(): array
     {
-        [$city, $lat, $lng, $postal] = fake()->randomElement(self::CITIES);
+        [$city, $lat, $lng, $postal] = $this->faker->randomElement(self::CITIES);
 
         return [
             'food_truck_id' => FoodTruck::factory(),
-            'address' => fake()->streetAddress(),
+            'address' => $this->faker->streetAddress(),
             'city' => $city,
             'postal_code' => $postal,
-            'latitude' => $lat + (mt_rand(-500, 500) / 10000),
-            'longitude' => $lng + (mt_rand(-500, 500) / 10000),
-            'place_name' => fake()->boolean(30) ? 'Place '.fake()->lastName() : null,
+            'latitude' => $lat + (\mt_rand(-500, 500) / 10000),
+            'longitude' => $lng + (\mt_rand(-500, 500) / 10000),
+            'place_name' => $this->faker->boolean(30) ? 'Place '.$this->faker->lastName() : null,
         ];
     }
 }

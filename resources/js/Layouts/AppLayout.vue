@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
+import AiBanner from '../Components/AiBanner.vue';
 import DemoBanner from '../Components/DemoBanner.vue';
 
 const page = usePage<{
@@ -71,10 +72,19 @@ const logout = () => router.post('/deconnexion');
             </div>
         </header>
 
-        <DemoBanner v-if="page.props.isDemo" />
+        <DemoBanner v-if="page.props.isDemo && page.component !== 'Home'" />
+        <AiBanner v-if="page.component !== 'Home'" />
 
-        <!-- Content (offset for fixed navbar) -->
-        <main :class="page.props.isDemo ? 'pt-22' : 'pt-14'">
+        <!-- Content (offset for fixed navbar + bandeaux éventuels) -->
+        <main
+            :class="
+                page.props.isDemo && page.component !== 'Home'
+                    ? 'pt-32'
+                    : page.component !== 'Home'
+                      ? 'pt-22'
+                      : 'pt-14'
+            "
+        >
             <slot />
         </main>
     </div>

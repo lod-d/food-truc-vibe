@@ -1,0 +1,202 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "TruckMap API",
+    "description": "API publique de TruckMap — annuaire de food trucks en France avec localisation et horaires en temps réel. Aucune authentification requise pour la lecture.",
+    "version": "1.0.0",
+    "contact": {
+      "url": "https://github.com/lod-d/food-truc-vibe"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://foodtruck.deladev.fr/api",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/trucks": {
+      "get": {
+        "summary": "Lister les food trucks",
+        "description": "Retourne une liste paginée de food trucks (20 par page) avec leurs horaires du jour. Supporte le filtrage par cuisine, nom, statut d'ouverture et proximité géographique.",
+        "operationId": "getTrucks",
+        "parameters": [
+          {
+            "name": "cuisine",
+            "in": "query",
+            "description": "Slug du type de cuisine",
+            "schema": {
+              "type": "string",
+              "enum": ["burger", "tacos", "pizza", "asiatique", "sushi", "kebab", "vegetarien", "bbq", "desserts", "street-food"]
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Recherche partielle sur le nom du truck",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "open_now",
+            "in": "query",
+            "description": "Filtrer uniquement les trucks ouverts maintenant (envoyer 1)",
+            "schema": { "type": "integer", "enum": [1] }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "Trucks ouverts ce jour (format YYYY-MM-DD, défaut : aujourd'hui)",
+            "schema": { "type": "string", "format": "date", "example": "2026-07-10" }
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "description": "Latitude du point de recherche (combiné avec lng)",
+            "schema": { "type": "number", "format": "float", "example": 48.8566 }
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "description": "Longitude du point de recherche (combiné avec lat)",
+            "schema": { "type": "number", "format": "float", "example": 2.3522 }
+          },
+          {
+            "name": "radius",
+            "in": "query",
+            "description": "Rayon en kilomètres autour de lat/lng (défaut : 50)",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 500, "default": 50 }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Numéro de page (20 résultats par page)",
+            "schema": { "type": "integer", "minimum": 1, "default": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste paginée de food trucks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/FoodTruck" }
+                    },
+                    "current_page": { "type": "integer" },
+                    "last_page": { "type": "integer" },
+                    "total": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trucks/{id}": {
+      "get": {
+        "summary": "Détails d'un food truck",
+        "description": "Retourne les détails complets d'un food truck : infos, cuisine, contact, localisation et horaires du jour.",
+        "operationId": "getTruck",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID du food truck",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détails du food truck",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": { "$ref": "#/components/schemas/FoodTruck" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Food truck introuvable" }
+        }
+      }
+    },
+    "/cuisines": {
+      "get": {
+        "summary": "Lister les types de cuisine",
+        "description": "Retourne les 10 types de cuisine disponibles sur TruckMap.",
+        "operationId": "getCuisines",
+        "responses": {
+          "200": {
+            "description": "Liste des cuisines",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Cuisine" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Cuisine": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string", "example": "Burger" },
+          "slug": { "type": "string", "example": "burger" },
+          "emoji": { "type": "string", "example": "🍔" }
+        }
+      },
+      "Schedule": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "opens_at": { "type": "string", "example": "11:00:00" },
+          "closes_at": { "type": "string", "example": "22:00:00" }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "address": { "type": "string", "example": "12 rue de la Paix" },
+          "city": { "type": "string", "example": "Paris" },
+          "latitude": { "type": "number", "format": "float" },
+          "longitude": { "type": "number", "format": "float" },
+          "place_name": { "type": "string", "nullable": true },
+          "is_open_today": { "type": "boolean" },
+          "is_open_now": { "type": "boolean" },
+          "todays_schedule": { "$ref": "#/components/schemas/Schedule" }
+        }
+      },
+      "FoodTruck": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string", "example": "Le Camion de Marcel" },
+          "cuisine": { "$ref": "#/components/schemas/Cuisine" },
+          "photo_url": { "type": "string", "nullable": true },
+          "instagram_url": { "type": "string", "nullable": true },
+          "phone": { "type": "string", "nullable": true },
+          "locations": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Location" }
+          }
+        }
+      }
+    }
+  }
+}

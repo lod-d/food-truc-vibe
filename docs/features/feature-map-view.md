@@ -17,7 +17,11 @@
 ### Map
 
 - Centered on France (`[46.603354, 1.888334]`, zoom 6) on initial load
-- Tiles: CartoDB Positron (light, neutral, no API key required, free < 75k tiles/day)
+- Tiles: Esri World Light Gray Base (light, neutral, no API key, no account)
+  - URL order is `{z}/{y}/{x}`, not the usual `{z}/{x}/{y}`
+  - Native tiles stop at zoom 16 (`maxNativeZoom: 16`); Leaflet upscales them up to `maxZoom: 19`
+  - Replaced CartoDB Positron in 2026-09: CARTO now serves an "API KEY REQUIRED" watermark
+    on its anonymous basemap tiles (HTTP 200, so it fails silently — no console error)
 - Zoom control: bottom-right
 - Markers: custom teardrop shape with cuisine emoji, coral (#D85A30) when open, gray (#888780) when closed
 - Clustering: `Leaflet.markercluster` — `clearLayers()` + `addLayers()` for performance
