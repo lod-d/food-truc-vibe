@@ -22,7 +22,10 @@ const placeMarker = (
     address?: string,
     city?: string,
 ) => {
-    if (!_L || !miniMap) return;
+    if (!_L || !miniMap) {
+        return;
+    }
+
     const L = _L;
 
     props.form.latitude = lat;

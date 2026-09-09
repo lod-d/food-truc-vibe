@@ -1,9 +1,9 @@
+// L_NS est un import type-only : effacé au build, donc sans risque en SSR
+import type L_NS from 'leaflet';
 import { createApp, h, onUnmounted } from 'vue';
 import type { Ref } from 'vue';
 import TruckPopup from '../Components/Map/TruckPopup.vue';
 import type { Bounds } from './useTrucks';
-// Type-only import — erased at build time, safe en SSR
-import type L_NS from 'leaflet';
 
 type BoundsCallback = (bounds: Bounds | null) => void;
 type TruckClickCallback = (truck: any, location: any) => void;
@@ -12,10 +12,14 @@ type TruckClickCallback = (truck: any, location: any) => void;
 let _L: typeof L_NS | null = null;
 
 async function loadLeaflet(): Promise<typeof L_NS> {
-    if (_L) return _L;
+    if (_L) {
+        return _L;
+    }
+
     const { default: leaflet } = await import('leaflet');
     _L = leaflet;
     await import('leaflet.markercluster');
+
     return _L;
 }
 
@@ -45,10 +49,14 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
         popupApps.length = 0;
     };
 
-    const init = async (onBoundsChange: BoundsCallback | null = null): Promise<void> => {
+    const init = async (
+        onBoundsChange: BoundsCallback | null = null,
+    ): Promise<void> => {
         onBoundsChangeCallback = onBoundsChange;
 
-        if (!containerRef.value) return;
+        if (!containerRef.value) {
+            return;
+        }
 
         const L = await loadLeaflet();
 
@@ -92,11 +100,17 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
         map.addLayer(clusterGroup);
 
         map.on('moveend', () => {
-            if (!onBoundsChangeCallback || !map) return;
-            if (Date.now() < skipMoveEndUntil) return;
+            if (!onBoundsChangeCallback || !map) {
+                return;
+            }
+
+            if (Date.now() < skipMoveEndUntil) {
+                return;
+            }
 
             if (map.getZoom() < 10) {
                 onBoundsChangeCallback(null);
+
                 return;
             }
 
@@ -111,7 +125,10 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
     };
 
     const setTrucks = (trucks: any[], onClickFn: TruckClickCallback): void => {
-        if (!clusterGroup || !_L) return;
+        if (!clusterGroup || !_L) {
+            return;
+        }
+
         const L = _L;
 
         onTruckClickCallback = onClickFn;
@@ -128,7 +145,9 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
                     popupAnchor: L.point(0, -44),
                 });
 
-                const marker = L.marker([loc.latitude, loc.longitude], { icon });
+                const marker = L.marker([loc.latitude, loc.longitude], {
+                    icon,
+                });
                 marker.bindPopup(mountPopup(truck, loc), {
                     maxWidth: 260,
                     className: 'truck-leaflet-popup',
@@ -144,7 +163,9 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
     };
 
     const flyTo = (lat: number | null, lng: number | null, zoom = 14): void => {
-        if (!map || lat == null || lng == null) return;
+        if (!map || lat == null || lng == null) {
+            return;
+        }
 
         skipMoveEndUntil = Date.now() + 1500;
         map.flyTo([lat, lng], zoom, { animate: true, duration: 0.6 });
@@ -155,7 +176,10 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
         lng: number,
         accuracy: number | null = null,
     ): void => {
-        if (!map || !_L) return;
+        if (!map || !_L) {
+            return;
+        }
+
         const L = _L;
 
         const icon = L.divIcon({

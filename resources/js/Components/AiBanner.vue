@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 import { useDemoBanner } from '../Composables/useDemoBanner';
 
 const DISMISS_KEY = 'ai-banner-dismissed';
@@ -15,6 +15,7 @@ const dismissed = ref(
 
 const dismiss = () => {
     dismissed.value = true;
+
     if (typeof localStorage !== 'undefined') {
         localStorage.setItem(DISMISS_KEY, '1');
     }
@@ -22,12 +23,12 @@ const dismiss = () => {
 
 const demoBannerVisible = computed(
     () =>
-        page.props.isDemo &&
-        page.component !== 'Home' &&
-        !demoDismissed.value,
+        page.props.isDemo && page.component !== 'Home' && !demoDismissed.value,
 );
 
-const topClass = computed(() => (demoBannerVisible.value ? 'top-22' : 'top-14'));
+const topClass = computed(() =>
+    demoBannerVisible.value ? 'top-22' : 'top-14',
+);
 </script>
 
 <template>

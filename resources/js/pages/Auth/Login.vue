@@ -37,16 +37,26 @@ const submit = () => form.post('/connexion');
                 >
                     <p class="mb-1 font-medium">Compte de démo</p>
                     <p class="mb-2 text-warm-500">
-                        Connectez-vous avec les identifiants ci-dessous pour explorer l'espace propriétaire. Les données sont remises à zéro chaque nuit à 4h00 (heure de Paris).
+                        Connectez-vous avec les identifiants ci-dessous pour
+                        explorer l'espace propriétaire. Les données sont remises
+                        à zéro chaque nuit à 4h00 (heure de Paris).
                     </p>
                     <div class="mb-3 flex flex-col gap-1">
                         <div class="flex items-center gap-2">
-                            <span class="w-20 shrink-0 text-warm-500">Email</span>
-                            <code class="rounded bg-white px-1.5 py-0.5">demo@truckmap.fr</code>
+                            <span class="w-20 shrink-0 text-warm-500"
+                                >Email</span
+                            >
+                            <code class="rounded bg-white px-1.5 py-0.5"
+                                >demo@truckmap.fr</code
+                            >
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="w-20 shrink-0 text-warm-500">Mot de passe</span>
-                            <code class="rounded bg-white px-1.5 py-0.5">demo</code>
+                            <span class="w-20 shrink-0 text-warm-500"
+                                >Mot de passe</span
+                            >
+                            <code class="rounded bg-white px-1.5 py-0.5"
+                                >demo</code
+                            >
                         </div>
                     </div>
                     <button

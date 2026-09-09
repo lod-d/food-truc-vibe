@@ -10,6 +10,7 @@ const dismissed = ref(
 export function useDemoBanner() {
     const dismiss = () => {
         dismissed.value = true;
+
         if (typeof sessionStorage !== 'undefined') {
             sessionStorage.setItem(KEY, '1');
         }

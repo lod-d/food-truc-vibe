@@ -77,7 +77,13 @@ const logout = () => router.post('/deconnexion');
 
         <!-- Content (offset for fixed navbar + bandeaux éventuels) -->
         <main
-            :class="page.props.isDemo && page.component !== 'Home' ? 'pt-32' : (page.component !== 'Home' ? 'pt-22' : 'pt-14')"
+            :class="
+                page.props.isDemo && page.component !== 'Home'
+                    ? 'pt-32'
+                    : page.component !== 'Home'
+                      ? 'pt-22'
+                      : 'pt-14'
+            "
         >
             <slot />
         </main>
