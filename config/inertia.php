@@ -16,7 +16,10 @@ return [
     */
 
     'ssr' => [
-        'enabled' => true,
+        // Désactivé : aucun process n'écoute sur le port 13714 (le Dockerfile ne
+        // construit pas le bundle et supervisord ne le démarre pas). Laissé à true,
+        // chaque rendu tentait un POST voué à échouer avant de retomber côté client.
+        'enabled' => false,
         'url' => 'http://127.0.0.1:13714',
         'bundle' => base_path('bootstrap/ssr/ssr.js'),
 
