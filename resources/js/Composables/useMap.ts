@@ -148,7 +148,12 @@ export function useMap(containerRef: Ref<HTMLElement | null>) {
                 const marker = L.marker([loc.latitude, loc.longitude], {
                     icon,
                 });
-                marker.bindPopup(mountPopup(truck, loc), {
+
+                // La popup n'est construite qu'à la première ouverture, puis
+                // réutilisée : monter une app Vue par marqueur à l'avance coûtait
+                // N montages/démontages à chaque déplacement de carte.
+                let popupEl: HTMLDivElement | null = null;
+                marker.bindPopup(() => (popupEl ??= mountPopup(truck, loc)), {
                     maxWidth: 260,
                     className: 'truck-leaflet-popup',
                     autoPan: false,
