@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue';
+import { onScopeDispose, ref, watch } from 'vue';
 
 export interface Bounds {
     minLat: number;
@@ -17,6 +17,10 @@ export interface TruckFilters {
     bounds: Bounds | null;
     date: string | null;
 }
+
+// Délai d'attente avant de lancer une requête, le temps que l'utilisateur
+// finisse de déplacer la carte ou de taper.
+const DEBOUNCE_MS = 300;
 
 export function useTrucks(initialTrucks: any[] = []) {
     const trucks = ref<any[]>(initialTrucks);
@@ -79,13 +83,42 @@ export function useTrucks(initialTrucks: any[] = []) {
         return params;
     };
 
+    // Requêtes en vol. Une nouvelle recherche annule la précédente ainsi que
+    // toute pagination en cours, dont les résultats porteraient sur des filtres
+    // qui n'ont plus cours.
+    let pending: AbortController | null = null;
+    let pendingMore: AbortController | null = null;
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const isAbort = (e: unknown): boolean =>
+        e instanceof Error && e.name === 'AbortError';
+
     const fetch = async (): Promise<void> => {
+        // Pas d'appel réseau au rendu serveur : window n'y existe pas.
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        pending?.abort();
+
+        if (pendingMore) {
+            // Le `finally` de loadMore ne rendra pas la main : son contrôleur
+            // n'est déjà plus le courant. On éteint le spinner ici.
+            pendingMore.abort();
+            pendingMore = null;
+            loadingMore.value = false;
+        }
+
+        const controller = new AbortController();
+        pending = controller;
+
         loading.value = true;
         currentPage.value = 1;
 
         try {
             const res = await window.fetch(`/api/trucks?${buildParams(1)}`, {
                 headers: { Accept: 'application/json' },
+                signal: controller.signal,
             });
 
             if (!res.ok) {
@@ -105,16 +138,40 @@ export function useTrucks(initialTrucks: any[] = []) {
             trucks.value = json.data;
             hasMore.value = json.current_page < json.last_page;
         } catch (e) {
+            if (isAbort(e)) {
+                return;
+            }
+
             console.error('[useTrucks] fetch error:', e);
         } finally {
-            loading.value = false;
+            // Une requête plus récente a pris la main : elle gère loading.
+            if (pending === controller) {
+                pending = null;
+                loading.value = false;
+            }
         }
+    };
+
+    // Regroupe les rafales de changements de filtres (pan de carte, frappe au
+    // clavier) en un seul appel.
+    const scheduleFetch = (): void => {
+        if (debounceTimer) {
+            clearTimeout(debounceTimer);
+        }
+
+        debounceTimer = setTimeout(() => {
+            debounceTimer = null;
+            fetch();
+        }, DEBOUNCE_MS);
     };
 
     const loadMore = async (): Promise<void> => {
         if (loadingMore.value || !hasMore.value) {
             return;
         }
+
+        const controller = new AbortController();
+        pendingMore = controller;
 
         loadingMore.value = true;
         const nextPage = currentPage.value + 1;
@@ -124,6 +181,7 @@ export function useTrucks(initialTrucks: any[] = []) {
                 `/api/trucks?${buildParams(nextPage)}`,
                 {
                     headers: { Accept: 'application/json' },
+                    signal: controller.signal,
                 },
             );
 
@@ -136,9 +194,16 @@ export function useTrucks(initialTrucks: any[] = []) {
             currentPage.value = json.current_page;
             hasMore.value = json.current_page < json.last_page;
         } catch (e) {
+            if (isAbort(e)) {
+                return;
+            }
+
             console.error('[useTrucks] loadMore error:', e);
         } finally {
-            loadingMore.value = false;
+            if (pendingMore === controller) {
+                pendingMore = null;
+                loadingMore.value = false;
+            }
         }
     };
 
@@ -149,12 +214,21 @@ export function useTrucks(initialTrucks: any[] = []) {
                 hasLocation.value = true;
             }
 
-            fetch();
+            scheduleFetch();
         },
         { deep: true },
     );
 
     fetch();
+
+    onScopeDispose(() => {
+        if (debounceTimer) {
+            clearTimeout(debounceTimer);
+        }
+
+        pending?.abort();
+        pendingMore?.abort();
+    });
 
     return {
         trucks,

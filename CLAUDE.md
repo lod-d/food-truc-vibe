@@ -70,8 +70,8 @@ Pas de classes `ApiResource` — le JSON est mappé manuellement dans les contro
 
 Les composables sont le cœur de la logique frontend :
 
-- **`useMap.js`** — wraps Leaflet : `init(onBoundsChange?)`, `setTrucks()`, `flyTo()`, `showUserLocation()`. Utilise `clearLayers()` + `addLayers()` pour les perfs. Monte `TruckPopup.vue` via `createApp` dans chaque popup Leaflet (cleanup via `popupApps[]`). Émet les bounds via callback `onBoundsChange` sur `moveend` (actif si zoom ≥ 10).
-- **`useTrucks.js`** — fetch réactif vers `/api/trucks` avec `watch(filters, fetch, { deep: true })`. Filtres : `cuisine`, `openNow`, `name` (LIKE), `bounds` (lat/lng viewport), `date` (YYYY-MM-DD). Pagination 20/page via `loadMore()` + `hasMore`. Expose `today` (date du jour en YYYY-MM-DD).
+- **`useMap.ts`** — wraps Leaflet : `init(onBoundsChange?)`, `setTrucks()`, `flyTo()`, `showUserLocation()`. Utilise `clearLayers()` + `addLayers()` pour les perfs. `TruckPopup.vue` est monté via `createApp` **paresseusement**, à la première ouverture de la popup seulement — `bindPopup()` reçoit une fonction mémoïsée (cleanup via `popupApps[]`). Émet les bounds via callback `onBoundsChange` sur `moveend` (actif si zoom ≥ 10).
+- **`useTrucks.ts`** — fetch réactif vers `/api/trucks` avec `watch(filters, scheduleFetch, { deep: true })`, **debouncé à 300 ms** et **annulable** (`AbortController` : une recherche avorte la précédente et la pagination en vol). Filtres : `cuisine`, `openNow`, `name` (LIKE), `bounds` (lat/lng viewport), `date` (YYYY-MM-DD). Pagination 20/page via `loadMore()` + `hasMore`. Expose `today` (date du jour en YYYY-MM-DD).
 - **`useGeocoding.js`** — Nominatim (OpenStreetMap), limité à la France, debounce 350ms, min 3 chars. Max 1 req/sec (règle Nominatim).
 
 `MapView.vue` wraps `useMap` et expose `flyTo` + `showUserLocation` via `defineExpose`. `Home.vue` orchestre tout via `mapViewRef`.

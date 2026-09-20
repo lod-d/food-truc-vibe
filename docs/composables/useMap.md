@@ -1,6 +1,6 @@
 # useMap — TruckMap
 
-**Dernière mise à jour :** 2026-07-11
+**Dernière mise à jour :** 2026-09-20
 **Fichier source :** [`resources/js/Composables/useMap.ts`](../../resources/js/Composables/useMap.ts)
 
 ---
@@ -57,10 +57,12 @@ setTrucks(trucks, (truck) => {
 Internement :
 1. `clusterGroup.clearLayers()` — vide les markers existants
 2. Crée un `L.divIcon` par location avec classe `truck-marker` (+ `closed` si fermé)
-3. Monte un `TruckPopup.vue` via `createApp` dans chaque popup Leaflet
+3. Lie une popup **paresseuse** : `bindPopup()` reçoit une fonction, et le `TruckPopup.vue` n'est monté via `createApp` qu'à la première ouverture (mémoïsé ensuite)
 4. `clusterGroup.addLayers([...markers])` — ajout en batch pour les performances
 
 > **Pourquoi `clearLayers` + `addLayers` ?** `removeLayer` en boucle déclenche un re-rendu par marker. Le batch évite les flickers sur de grandes listes.
+
+> **Pourquoi la popup est paresseuse ?** `setTrucks` tourne à chaque changement de `trucks`, donc à chaque déplacement de carte. Monter une app Vue par marqueur *à l'avance* revenait à démonter N apps puis en remonter N à chaque pan, pour des popups que l'utilisateur n'ouvrira presque jamais. Elles ne coûtent désormais que si on clique.
 
 ---
 

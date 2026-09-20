@@ -11,3 +11,5 @@ public/hot
 docker-compose*.yml
 *.md
 tests
+# bundle SSR : jamais reconstruit ici, ne pas embarquer une version périmée
+bootstrap/ssr

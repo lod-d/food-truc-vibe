@@ -1,13 +1,13 @@
 # useTrucks — TruckMap
 
-**Dernière mise à jour :** 2026-07-11
+**Dernière mise à jour :** 2026-09-20
 **Fichier source :** [`resources/js/Composables/useTrucks.ts`](../../resources/js/Composables/useTrucks.ts)
 
 ---
 
 ## Rôle
 
-Gère le fetch réactif vers `/api/trucks`. Toute modification d'un filtre déclenche automatiquement un nouveau fetch.
+Gère le fetch réactif vers `/api/trucks`. Toute modification d'un filtre déclenche automatiquement un nouveau fetch, **debouncé à 300 ms** et **annulable** : une recherche plus récente avorte la précédente.
 
 ---
 
@@ -70,10 +70,32 @@ if (hasMore.value) await loadMore()
 ## Réactivité
 
 ```ts
-watch(filters, fetch, { deep: true })
+watch(filters, scheduleFetch, { deep: true })   // debounce 300 ms
 ```
 
 Tout changement dans `filters` (y compris nested comme `bounds`) relance `fetch()` automatiquement. Le fetch repart toujours de la page 1.
+
+### Debounce
+
+Le watcher ne lance pas `fetch()` directement mais `scheduleFetch()`, qui attend `DEBOUNCE_MS` (300 ms) avant de partir. Un déplacement de carte émet un `moveend` par palier ; sans ce délai, un pan de deux secondes générait une dizaine d'appels API, dont un seul comptait — et faisait vite tomber le `throttle:60,1` de la route.
+
+L'appel initial, lui, part immédiatement (pas de debounce au montage).
+
+### Annulation
+
+Chaque requête porte un `AbortController` :
+
+- `fetch()` annule la requête page 1 précédente **et** toute pagination en vol, dont les résultats porteraient sur des filtres périmés.
+- Une réponse avortée (`AbortError`) est ignorée silencieusement — ce n'est pas une erreur.
+- `loading` / `loadingMore` ne repassent à `false` que si le contrôleur qui se termine est encore le contrôleur courant. Sans ce garde, une requête annulée éteignait le spinner d'une requête toujours en vol.
+
+Cela supprime aussi les réponses dans le désordre : jusqu'ici, la dernière réponse *arrivée* gagnait, pas la dernière *demandée*.
+
+`onScopeDispose` vide le timer et annule les requêtes restantes.
+
+### Rendu serveur
+
+`fetch()` sort immédiatement si `typeof window === 'undefined'`. Le composable est appelé dans le `setup` de `Home.vue`, donc évalué aussi au rendu serveur le jour où le SSR est rallumé.
 
 ---
 
