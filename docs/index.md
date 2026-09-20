@@ -61,6 +61,7 @@ Annuaire interactif de food trucks en France — Laravel 13 + Inertia.js + Vue 3
 | [`sprints/sprint-6-auth-admin.md`](sprints/sprint-6-auth-admin.md) | Auth + espace admin |
 | [`sprints/sprint-7-home-fixes.md`](sprints/sprint-7-home-fixes.md) | Correctifs Home |
 | [`sprints/sprint-8-demo-environment.md`](sprints/sprint-8-demo-environment.md) | Environnement démo |
+| [`sprints/sprint-9-perf-carte.md`](sprints/sprint-9-perf-carte.md) | Perfs carte & SSR fantôme |
 
 ### Suivi
 
