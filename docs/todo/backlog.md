@@ -16,6 +16,7 @@
 - [ ] **Multiple locations per truck** : a truck can appear at several spots on the same day
 - [ ] **Multiple schedule slots** : support morning + afternoon slots (e.g. 11h–14h and 18h–21h)
 - [ ] **Index DB manquants** : aucun index sur `locations.latitude/longitude` ni `schedules.day_of_week` / `is_cancelled` / `is_recurring` / `specific_date`. Indolore à ~300 trucks, bloquant après. Le Haversine en `whereRaw` (`TruckController.php:43`) ne peut de toute façon en utiliser aucun — préfiltrer par bounding box avant de calculer la distance
+- [ ] **La CI ne garde pas le build qui part en prod** : `lint.yml` fait `npm install`, `tests.yml` fait `npm i` — tous deux réparent l'arbre en silence. Seul le Dockerfile fait `npm ci`, strict. Un `package-lock.json` désynchronisé passe donc la CI au vert et casse le déploiement Dokploy. Passer les deux workflows à `npm ci`
 - [ ] **Erreur API visible** : le `catch` de `useTrucks` se contente d'un `console.error`. Un 429 ou une coupure réseau vide la carte sans rien dire à l'utilisateur
 - [ ] **Comparaison de bounds par valeur** dans `useMap` : `docs/composables/useMap.md` la documente, elle n'existe pas dans le code. Le debounce du Sprint 9 réduit la casse sans la remplacer
 - [ ] **Nominatim → BAN** : `useGeocoding` tape `nominatim.openstreetmap.org` (≈1 req/s, sans User-Agent identifiant, usage applicatif hors politique OSM). `api-adresse.data.gouv.fr` est franco-français, sans clé, nettement plus rapide
